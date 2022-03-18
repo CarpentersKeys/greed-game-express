@@ -1,0 +1,12 @@
+async needs:
+    accepting issued challenge
+    waiting for selectTime
+    waiting for race
+
+game flow
+    -issue challenge (some setup can begin)
+    -async accept challenge
+    -finish setup
+    -asynch selectTime
+    -async race
+    -get results
