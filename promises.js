@@ -1,15 +1,25 @@
 
-export function runTimerPromise(_timelimit) {
-    return new Promise((resolve, reject,) => {
-        //create timerResult object
-        const timerResult = {}
+export function runTimePromise({ timeLimit, players } = selectTimeResult) {
 
-        // (greedyPlayer, timeLimit, timeReached)
-        setTimeout(resolve(), _timelimit);
+    const { timerPlayer, greedyPlayer } = players;
+
+    return new Promise((resolve, reject,) => {
+        const startTime = new Date().getTime();
+
+        const timer = setTimeout(resolve({
+            timeReached: timeLimit,
+            winner: timerPlayer,
+            timeLimit,
+        }), timeLimit);
 
         greedyOnClick(() => {
-        // (timerPlayer, timeLimit, timeReached)
-        resolve(timerResult)
-        })
-    })
-}
+            clearTimeout(timer);
+            const timeReached = new Date().getTime() - startTime;
+            resolve({
+                timeReached,
+                winner: greedyPlayer,
+                timeLimit,
+            });
+        });
+    });
+};

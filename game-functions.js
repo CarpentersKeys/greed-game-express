@@ -1,9 +1,11 @@
+const { runTimerPromise } = require('./promises')
+
 // start point of any game
 export function issueChallenge({ players, numberRounds }) {
     // setup and await challenge response
-
+    return challengeResult
 }
-    // returns promise resolves to setupGame result 
+// returns promise resolves to challengeResult 
 
 // possibl exit points
 // -----------------------------------------------------------
@@ -14,37 +16,77 @@ export function endGameEarly() {
      *  -validation fails
      *  -error
      */
-
+    return gameResult
 }
 
-export function concludeGame() {
+export function playGame({ players, numberRound } = challengeResult) {
+
+    playRounds(players, numberRounds)
+
+    return gameResult
+
+    function playRounds(_players, _numberRounds) {
+
+        var roundResults =
+
+            startRoundStage(challengeResult).then(
+                selectTimeStage(startRoundResult)).then(
+                    runTimeStage(selectTimeResult)).catch(
+                        (err) => { console.log(err) }).then(
+                            winRoundStage(runTimeResult)).then(
+                                (winRoundResult) => {
+
+                                    if (_numberRounds > 0) playRounds(_players, _numberRounds - 1)
+
+                                    if (roundResults) return [...roundResults, winRoundResult];
+                                    return winRoundResult;
+                                })
+
+    }
+    //return a promise that resolves to the roundResults
 
 }
+// both return a promise that resolves to gameResult object
 // -----------------------------------------------------------
 
-// ROUND FUNCTIONS
-// timerPlayer selects time to wait
-function selectTime({players} = challengeResult) {
+
+
+// STAGE FUNCTIONS: each game is made up of four stages
+
+export function startRoundStage() {
 
 }
-    // return promise which resolves to selectTimeResult
+// returns promise resolves to setupGame result 
 
-// will the timer run down or greedy player click the button first?
-function callTimer({players, timeLimit} = selectTimeResult) {
-    // declarations and settings
+// timerPlayer selects time to wait
+function selectTimeStage({ players } = challengeResult) {
 
-    const greedyPlayer = players.find(p => p.gameRole === 'greedy')
-    const timerPlayer = players.find(p => p.gameRole === 'timer')
+    const selectTimeResult = selectTimePromise()
 
     // send UI messages
-    sendTimerMessage(timerPlayer);
-    sendGreedyClickMessage(greedyPlayer);
+    sendSelectTimeMessage(players.timerPlayer);
+    sendWaitMessage(players.greedyPlayer);
 
-    const timeReached = runTimerPromise(timeLimit)
+    return selectTimeResult;
+
 }
-    // return promise which resolves to timerResult
+// return promise which resolves to selectTimeResult
 
-function winGame({ winner, timeLimit, timeReached } = timerResult) {
+// will the timer run down or greedy player click the button first?
+function runTimeStage({ players, timeLimit } = selectTimeResult) {
+
+    // resolve to either greedyOnClick() or setTimeout()
+    const runTimeResult = runTimePromise(arguments[0]) // <---- this passes selectTimeResult
+
+    // send UI messages
+    sendTimerMessage(players.timerPlayer);
+    sendGreedyClickMessage(players.greedyPlayer);
+
+    return runTimeResult; // { winner, timeLimit, timeReached }
+}
+// return promise which resolves to runTimeResult
+
+function winRoundStage({ winner, timeLimit, timeReached } = runTimeResult) {
 
 }
     // return roundResult

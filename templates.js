@@ -1,13 +1,11 @@
 
 exports.PLAYERS_TEMPLATE = [
-    {
+    greedyPlayer = {
         username: '',
-        gameRole: '',
         challenger: true,
     },
-    {
+    timerPlayer = {
         username: '',
-        gameRole: '',
         challenger: false,
     },
 ]
