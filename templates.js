@@ -1,10 +1,15 @@
+const PLAYER_ROLES = {'timerPlayer': 'greedyPlayer'}
+Object.freeze(PLAYER_ROLES)
 
-exports.PLAYERS_TEMPLATE = [
-    greedyPlayer = {
+const PLAYERS_TEMPLATE = [
+    // player object identifiers are 'player' by default and reassigned in the first round
+    {
+        gameRole: 'timerPlayer',
         username: '',
         challenger: true,
     },
-    timerPlayer = {
+    {
+        gameRole: 'greedyPlayer',
         username: '',
         challenger: false,
     },
@@ -12,7 +17,7 @@ exports.PLAYERS_TEMPLATE = [
 Object.freeze(PLAYERS_TEMPLATE)
 
 // after each round this get updated
-exports.ROUND_TEMPLATE = {
+const ROUND_RESULT_TEMPLATE = {
     winner: {},
     score: 0,
     stageResults: {
@@ -22,13 +27,20 @@ exports.ROUND_TEMPLATE = {
         conclusion: {},
     },
 } 
-Object.freeze(ROUND_TEMPLATE)
+Object.freeze(ROUND_RESULT_TEMPLATE)
 
 // at the start of the game this is created and number of rounds populated
-exports.GAME_TEMPLATE = {
-    players: [...PLAYERS_TEMPLATE],
-    winner: {},
-    finalScore: [0, 0],
-    roundStates: [],
+const GAME_RESULT_TEMPLATE = {
+        won: {
+            'player': 'player', 
+            'score': 0
+        },
+        lost: {
+            'player': 'player', 
+            'score': 0
+        },
+        roundResults: [],
 }
-Object.freeze(GAME_TEMPLATE)
+Object.freeze(GAME_RESULT_TEMPLATE)
+
+module.exports = {GAME_RESULT_TEMPLATE, PLAYER_ROLES, PLAYERS_TEMPLATE, ROUND_RESULT_TEMPLATE}

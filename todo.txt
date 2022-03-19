@@ -1,0 +1,20 @@
+    valiudation fn:
+        playerrole.every.players.some
+    
+    gamefunction: 
+        game result reducde
+        startstage
+
+
+    ui
+        prepare fs for ui clients (rename app.js to game.js?)
+        setup appjs for discord
+        build slash commands
+            challenge
+            quit game
+        build messages
+        build event listeners
+
+    questions: 
+        should I be making PLAYER_ROLES globally available? 
+        do hardcore functional programmers allow grlobal constants?

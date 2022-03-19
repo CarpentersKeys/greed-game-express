@@ -1,4 +1,5 @@
-const { runTimerPromise } = require('./promises')
+const { runTimePromise } = require('./promises')
+const PLAYER_ROLES = require('./templates')
 
 // start point of any game
 export function issueChallenge({ players, numberRounds }) {
@@ -19,32 +20,46 @@ export function endGameEarly() {
     return gameResult
 }
 
-export function playGame({ players, numberRound } = challengeResult) {
+export function playGame({ players, numberRounds } = challengeResult) {
+
+    const gameResult = 
 
     playRounds(players, numberRounds)
+    .then(getGameResult);
 
     return gameResult
-
+    //----------------------------------------------------------------------
     function playRounds(_players, _numberRounds) {
 
-        var roundResults =
+        const _roundResults = [];
 
-            startRoundStage(challengeResult).then(
-                selectTimeStage(startRoundResult)).then(
-                    runTimeStage(selectTimeResult)).catch(
-                        (err) => { console.log(err) }).then(
-                            winRoundStage(runTimeResult)).then(
-                                (winRoundResult) => {
+        startRoundStage(_players, _numberRounds) // passes challengeResult object
+            .then(selectTimeStage)
+            .then(runTimeStage)
+            .catch(err => console.log(err)) // future: improve exception handling
+            .then(winRoundStage)
+            .then(winRoundResult => {
 
-                                    if (_numberRounds > 0) playRounds(_players, _numberRounds - 1)
-
-                                    if (roundResults) return [...roundResults, winRoundResult];
-                                    return winRoundResult;
-                                })
+                _roundResults.push(winRoundResult)
+                if (_numberRounds > 0) return playRounds(_players, _numberRounds - 1)
+            })
+            .catch(err => console.log(err)) // future: improve exception handling
 
     }
     //return a promise that resolves to the roundResults
 
+    function getGameResult(roundResults) {
+
+        roundResults.reduce((_gameResult, current, index, arr) => {
+
+            if(index > 0) _gameResult.
+// --------------------fwa0923-408iwa-08-aw-09-w0f TODO
+        }, {
+            won: {player, score},
+            lost: {player, score},
+            roundResults,
+        })
+    }   
 }
 // both return a promise that resolves to gameResult object
 // -----------------------------------------------------------
@@ -53,13 +68,23 @@ export function playGame({ players, numberRound } = challengeResult) {
 
 // STAGE FUNCTIONS: each game is made up of four stages
 
-export function startRoundStage() {
+// assigns players their roles
+export function startRoundStage(players) {
 
+    const startRoundResult = [...players]
+
+    if(players.some(p => p.gameRole === 'greedy' || 'timer')) {
+        const randBool = Math.random() > 0.5
+
+        startRoundResult
+
+    }
+    return startRoundResult;
 }
-// returns promise resolves to setupGame result 
+    // returns promise resolves to players
 
 // timerPlayer selects time to wait
-function selectTimeStage({ players } = challengeResult) {
+function selectTimeStage(players) {
 
     const selectTimeResult = selectTimePromise()
 
