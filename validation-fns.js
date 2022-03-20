@@ -1,29 +1,7 @@
-
-const { PLAYER_ROLES } = require('./templates')
-
-const ERROR_TYPES = {
-    toFewPlayers: {
-        message: 'too many players!!',
-    },
-    toManyPlayers: {
-        message: 'not enough players!!',
-    },
-
-    playersNotAssigned: {
-        message: "rtsh",
-    },
-
-    noTimerPlayer: {
-        message: 'too many players!!',
-    },
-    noGreedyPlayer: {
-        message: 'not enough players!!',
-    }
-}
-Object.freeze(ERROR_TYPES)
-
+import { PLAYER_ROLES, ERROR_TYPES } from './templates';
 
 // validation and exeption handlers
+//------------------------------------------------------------------
 function validatePlayers(players, gameStage) {
 
     if (players.length > 2) throwPlayerError(ERROR_TYPES.toManyPlayers, gameStage);

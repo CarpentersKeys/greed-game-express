@@ -1,5 +1,4 @@
-const { acceptChallenge, endGameEarly, playGame } = require('./game-functions');
-const { issueChallengePromise } = require('./promises');
+import { challengeMaking, challengeResponding } from "./promises-maker-fns";
 
 /* game flow
     -issue challenge (some setup can begin)
@@ -14,6 +13,6 @@ if(gameEnv = discordjs) {/* build discordAPI event emmitters*/}
 if(gameEnv = web) {/* build webAPI event emmitters*/}
 // etc
 
-issueChallengePromise(gameEnv)
-    .then(acceptChallenge) // this is sync with a promise in the results object
-    Promise.race(endGameEarly, playGame))
+challengeMaking(gameEnv)
+    .then(challengeResponding) 
+    Promise.race(gameEnding, gamePlaying)

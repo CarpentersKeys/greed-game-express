@@ -45,4 +45,10 @@ patterns used:
         receive a functionNameResult object desctructure in the params
         if the full object is needed to be passed into a subfn use arguments[0]
 
+refactor ideas:
+    get all stages as an array of function
+    call playRound recursively on a patientReducer implementation 
 
+theme:
+    prisoners dilemma
+       at the end both players can choose if they want to play again, if they both choose to play again another round is started, if one choses to and the other doesn't, that player sthsthsth

@@ -1,6 +1,9 @@
+export { challengeMaking, challengeResponding, timerRunning }
+// -----------------------------------------------------------------------
+// functions that invoke new Promise() and handles the arguments they need
 
 // begins to wait for a challenge event, initialized on startup
-export function issueChallengePromise(gameEnv) {
+function challengeMaking(gameEnv) {
 
     return new Promise((resolve, reject) => {
 
@@ -16,7 +19,7 @@ export function issueChallengePromise(gameEnv) {
     })
 };
 
-export function acceptChallengePromise({players, numberRounds, gameEnv}) {
+function challengeResponding({players, numberRounds, gameEnv}) {
 
     return newPromise((resolve, reject) => {
 
@@ -28,7 +31,7 @@ export function acceptChallengePromise({players, numberRounds, gameEnv}) {
 
 };
 
-export function runTimePromise({ timeLimit, players } = selectTimeResult) {
+function timerRunning({ timeLimit, players } = selectTimeResult) {
 
     const { timerPlayer, greedyPlayer } = players;
 
