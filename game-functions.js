@@ -1,10 +1,20 @@
-const { runTimePromise } = require('./promises')
-const PLAYER_ROLES = require('./templates')
 
-// start point of any game
-export function issueChallenge({ players, numberRounds }) {
-    // setup and await challenge response
-    return challengeResult
+const { runTimePromise, acceptChallengePromise } = require('./promises');
+const validatePlayers = require('./validation-functions');
+const {deepClone, flattenToObj} = requires('./util/')
+
+// start point of any game, triggered by onChallenge event/command
+export function acceptChallenge({ players, numberRounds, gameEnv} = issueChallengeResult) {
+    // find the challengee
+    const playerToChallenge = {
+        ...players
+        .find(p => p.challenger === false)
+    }
+
+    // call UI fn
+    sendChallengeMessage(playerToChallenge, numberRounds, gameEnv);
+
+    return deepClone(flattenToObj(arguments[0]), acceptChallengePromise())
 }
 // returns promise resolves to challengeResult 
 
@@ -28,20 +38,21 @@ export function playGame({ players, numberRounds } = challengeResult) {
     .then(getGameResult);
 
     return gameResult
+}
     //----------------------------------------------------------------------
-    function playRounds(_players, _numberRounds) {
+    function playRounds(players, numberRounds) {
 
         const _roundResults = [];
 
-        startRoundStage(_players, _numberRounds) // passes challengeResult object
+        startRoundStage(players, numberRounds) // passes challengeResult object
             .then(selectTimeStage)
             .then(runTimeStage)
             .catch(err => console.log(err)) // future: improve exception handling
             .then(winRoundStage)
             .then(winRoundResult => {
 
-                _roundResults.push(winRoundResult)
-                if (_numberRounds > 0) return playRounds(_players, _numberRounds - 1)
+                roundResults.push(winRoundResult)
+                if (numberRounds > 0) return playRounds(players, numberRounds - 1)
             })
             .catch(err => console.log(err)) // future: improve exception handling
 
@@ -50,16 +61,16 @@ export function playGame({ players, numberRounds } = challengeResult) {
 
     function getGameResult(roundResults) {
 
-        roundResults.reduce((_gameResult, current, index, arr) => {
+//         roundResults.reduce((_gameResult, current, index, arr) => {
 
-            if(index > 0) _gameResult.
-// --------------------fwa0923-408iwa-08-aw-09-w0f TODO
-        }, {
-            won: {player, score},
-            lost: {player, score},
-            roundResults,
-        })
-    }   
+//             if(index > 0) _gameResult.
+// // --------------------fwa0923-408iwa-08-aw-09-w0f TODO
+//         }, {
+//             won: {player, score},
+//             lost: {player, score},
+//             roundResults,
+//         })
+//     }   
 }
 // both return a promise that resolves to gameResult object
 // -----------------------------------------------------------
@@ -71,14 +82,13 @@ export function playGame({ players, numberRounds } = challengeResult) {
 // assigns players their roles
 export function startRoundStage(players) {
 
-    const startRoundResult = [...players]
+    // if validate players errors resolves to assignRoles(players)
+    const playerVal = validatePlayers(players, 'startRoundStage')
 
-    if(players.some(p => p.gameRole === 'greedy' || 'timer')) {
-        const randBool = Math.random() > 0.5
+    // if(playerVal is error) throw playerVal or handle
 
-        startRoundResult
+    const startRoundResult = playerVal(players)
 
-    }
     return startRoundResult;
 }
     // returns promise resolves to players
@@ -115,3 +125,16 @@ function winRoundStage({ winner, timeLimit, timeReached } = runTimeResult) {
 
 }
     // return roundResult
+
+// --------------------------------------------------
+// HELPER FUNCTIONS
+
+// randomly select a greedy and timer player
+function assignRoles() {
+    const randBool = Math.random() > 0.5
+}
+
+// swap timer and greedy roles
+function swapRoles() {
+    
+}

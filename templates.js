@@ -1,4 +1,4 @@
-const PLAYER_ROLES = {'timerPlayer': 'greedyPlayer'}
+const PLAYER_ROLES = ['timerPlayer', 'greedyPlayer']
 Object.freeze(PLAYER_ROLES)
 
 const PLAYERS_TEMPLATE = [

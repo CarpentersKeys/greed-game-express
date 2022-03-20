@@ -1,19 +1,65 @@
 
-const PLAYER_ROLES = require('./templates')
+const { PLAYER_ROLES } = require('./templates')
 
-class ErrorObj {
-    constructor(_message, _gameStage) {
-        this.gameStage = _gameStage
-        this.message = _message
+const ERROR_TYPES = {
+    toFewPlayers: {
+        message: 'too many players!!',
+    },
+    toManyPlayers: {
+        message: 'not enough players!!',
+    },
+
+    playersNotAssigned: {
+        message: "rtsh",
+    },
+
+    noTimerPlayer: {
+        message: 'too many players!!',
+    },
+    noGreedyPlayer: {
+        message: 'not enough players!!',
     }
 }
+Object.freeze(ERROR_TYPES)
+
 
 // validation and exeption handlers
-function validatePlayers(_players, _gameStage) {
+function validatePlayers(players, gameStage) {
 
-    if (_players.length > 2) throw new ErrorObj('too many players!!', _gameStage)
-    if (_players.length < 2) throw new ErrorObj('not enough players!!', _gameStage)
+    if (players.length > 2) throwPlayerError(ERROR_TYPES.toManyPlayers, gameStage);
+    if (players.length < 2) throwPlayerError(ERROR_TYPES.toFewPlayers, gameStage);
 
-    // -0-----TODO playerrole.every.players.some
-    
+    // true is both roles assigned
+    const rolesAssigned = PLAYER_ROLES.every(pR => { 
+        players.some(p => p.gameRole === pR)
+    })
+
+    if(!rolesAssigned) roleAssignment 
+
+
+    if(gameStage === 'startRoundStage') {const validationAction = roleAssignment};
+    if(gameStage !== 'startRoundStage') {const validationAction = throwPlayerError};
+
+
+    if (players.some(p => p, gameRole !== PLAYER_ROLES.timerPlayer)) { // can these be refactoreD?
+        validateAction(players, gameStage, ERROR_TYPES.noTimerPlayer)
+    }
+
+    if (players.some(p => p, gameRole !== PLAYER_ROLES.greedyPlayer)) {
+        validateAction(players, gameStage, ERROR_TYPES.noTimerPlayer)    // thistoo
+    }
+
+
+}
+
+
+    // if gameStage is startRound then we return certain functinos
+    // if not we throw error fn
+
+function throwPlayerError(players, gameStage, errType) {
+
+}
+
+function roleAssignment(players) {
+
 }

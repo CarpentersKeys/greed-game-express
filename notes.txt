@@ -1,5 +1,30 @@
+todo!
+    valiudation fn:
+        refactor role validation
+    
+    gamefunction: 
+        game result reducde
+        startstage
+
+
+    ui
+        prepare fs for ui clients (rename app.js to game.js?)
+        setup appjs for discord
+        build slash commands
+            challenge
+            quit game
+        build messages
+        build event listeners
+
+questions: 
+    FP allow global constants?
+    how to handle exceptions with FP
+    do I need to pass UI functions into async handlers to maintain promiseFirst pattern
+    at what point do I want to filter the player objects and what do I need from them?
+
 async needs:
-    accepting issued challenge
+    issue challenge
+    accept challenge
     waiting for selectTime
     waiting for race
 
@@ -10,3 +35,14 @@ game flow
     -asynch selectTime
     -async race
     -get results
+
+
+patterns used:
+    for functions that require UI and async interactions: promiseFirst
+        intialize promise/event handlers that await the interactions
+        send UI messages or whatever
+    function params:
+        receive a functionNameResult object desctructure in the params
+        if the full object is needed to be passed into a subfn use arguments[0]
+
+
