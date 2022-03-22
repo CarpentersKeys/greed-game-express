@@ -7,7 +7,9 @@ function startRoundStage(players) {
     // if validate players errors resolves to assignRoles(players)
     const playerVal = validatePlayers(players, 'startRoundStage')
 
-    // if(playerVal is error) throw playerVal or handle
+    if(playerVal instanceof error) throw playerVal 
+    if(playerVal === 'unassigned') assignRoles(players);
+    if(playerVal === 'assigned') swapRoles(players);
 
     const startRoundResult = playerVal(players)
 

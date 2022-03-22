@@ -17,24 +17,35 @@ function flattenToObj(previousResults, ...newProps) {
 function patientReduce(array, callback, initialValue) {
 
     function reduceRecurcsively(arr, cb, prev, i) {
-        if (i < 0) throw new Error('index has been tampered with')
+        if (i < 0) { throw new Error('index has been tampered with'); }
 
-        if (i >= arr.length) return prev
-        if (arr[i].then) {
-            // if there's a promise in the array wait for it
-            return arr[i]
-                .then(result => {
-                    const next = (cb(prev, result, i, arr));
-                    reduceRecurcsively(arr, cb, next, i + 1);
+        if (i >= arr.length) { return prev; }
+
+        const elem = arr[i];
+
+        // invoke cb with the previous, current, index, and array elements
+        // should allow for normal array.reduce() behaviour
+        const next = (cb(prev, elem, i, arr));
+        // find anything with a .then() method on it
+        const thenable =  findThenableAnywhere(next);
+
+        if (thenable) { 
+
+            // if there is a thenable wait for it to be fullfilled or rejected
+            return thenable
+                .then(() => {
+                    return reduceRecurcsively(arr, cb, next, i + 1);
+                // call the next pseudo-recursion of reduce with the return value of cb
                 });
-
         } else {
-            // if no promise, handle as usual
-            const next = cb(prev, array[i], i, arr)
-            return reduceRecurcsively(arr, cb, next, i + 1)
-
+            // if no thenable, just call the next recursion
+            return reduceRecurcsively(arr, cb, next, i + 1);
         }
     }
 
-    return reduceRecurcsively(array, callback, initialValue, 0)
+    return reduceRecurcsively(array, callback, initialValue, 0);
+}
+
+function findThenableAnywhere(data) {
+    
 }

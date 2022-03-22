@@ -1,3 +1,4 @@
+import { runTimeStage, selectTimeStage, startRoundStage, winRoundStage } from "./schedule-stages-fns";
 
 export {playRounds, getGameResult}
 
@@ -38,3 +39,42 @@ export {playRounds, getGameResult}
 
 
 
+function reduceRound(players, numberRounds) {
+
+    const schedule = [
+        startRoundStage,
+        selectTimeStage,
+        runTimeStage,
+        winRoundStage
+    ]
+
+    patientReduce(schedule, (prev, cur, ind, schedule) => {
+
+        if(ind >= schedule.length) {
+
+            const roundResult = {
+                won: {
+                    player,
+                    score: 0,
+                },
+                lost: {
+                    player,
+                    score: 0,
+                },
+                stageResults: {
+                    challenge: {},
+                    selectTime: {},
+                    race: {},
+                    conclusion: {},
+                },
+            } 
+
+        } else {
+
+            
+
+        }
+
+    }, players)
+
+}
