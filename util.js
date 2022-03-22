@@ -1,4 +1,4 @@
-export { deepClone, flattenToObj, patientReduce}
+export { deepClone, flattenToObj, patientReduce, findThenableAnywhere }
 
 
 function deepClone(obj) {
@@ -27,15 +27,15 @@ function patientReduce(array, callback, initialValue) {
         // should allow for normal array.reduce() behaviour
         const next = (cb(prev, elem, i, arr));
         // find anything with a .then() method on it
-        const thenable =  findThenableAnywhere(next);
+        const thenable = findThenableAnywhere(next);
 
-        if (thenable) { 
+        if (thenable) {
 
             // if there is a thenable wait for it to be fullfilled or rejected
             return thenable
                 .then(() => {
                     return reduceRecurcsively(arr, cb, next, i + 1);
-                // call the next pseudo-recursion of reduce with the return value of cb
+                    // call the next pseudo-recursion of reduce with the return value of cb
                 });
         } else {
             // if no thenable, just call the next recursion
@@ -47,5 +47,29 @@ function patientReduce(array, callback, initialValue) {
 }
 
 function findThenableAnywhere(data) {
-    
+
+    const findOnArr = (arr => {
+        arr.find(e => e.then);
+    });
+
+    function findRecur(toSearch) {
+        if (!toSearch) return;
+        if (toSearch.then) { return then; }
+        if (Array.isArray(toSearch)) {
+            const found = findOnArr(toSearch);
+            if (found.then) { return found; }
+            // travaerse the array
+            toSearch.find(e => findRecur(e));
+        }
+        if (typeof (toSearch) === 'object') {
+            const arr = Object.values(obj);
+            const found = findOnObj(arr);
+            if (found.then) { return found; }
+            // traverse the obj
+            arr.find(e => findRecur(e));
+        }
+        return;
+    }
+
 }
+
