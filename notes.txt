@@ -1,4 +1,12 @@
 todo!
+
+    app.js 
+        figure out how to loop round stages in patientReducer without rechallenging
+        just chain two patientReducers?
+
+    util
+        should I add patientReducer to Array.prototype? 
+
     valiudation fn:
         refactor role validation
     
@@ -17,10 +25,12 @@ todo!
         build event listeners
 
 questions: 
-    FP allow global constants?
+    FP allow global constants? 
+        NO
     how to handle exceptions with FP
     do I need to pass UI functions into async handlers to maintain promiseFirst pattern
     at what point do I want to filter the player objects and what do I need from them?
+    can I reset the index of a reducer?
 
 async needs:
     issue challenge

@@ -1,23 +1,30 @@
-export { acceptChallenge, endGameEarly, playGame }
+export { acceptChallenge, earlyGameEnding, playGame }
+import events from 'events';
 
 // possibl exit points
 // -----------------------------------------------------------
-function endGameEarly() {
+function earlyGameEnding() {
     /** early end conditions
      *  -player disco
      *  -endgame slashcommand 
      *  -validation fails
      *  -error
      */
-    return gameResult
+    return new Promise((resolve, reject) => {
+        // each API can handle the possible methods of quiting and just emit this
+        events.EventEmitter.on('quit', (player, reason, details) => {
+            resolve({
+                player,
+                reason, // disconnect, quit
+                details, // time waited
+            });
+        });
+    });
 }
 
-function playGame({ players, numberRounds } = challengeResult) {
+function endGame({ players, numberRounds } = challengeResult) {
 
-    const gameResult =
-
-        playRounds(players, numberRounds)
-            .then(getGameResult);
+    const gameResult = getGameResult;
 
     return gameResult
 }

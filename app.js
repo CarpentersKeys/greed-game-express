@@ -1,4 +1,7 @@
-import { challengeMaking, challengeResponding } from "./promises-maker-fns";
+import { challengeMaking, challengeResponding } from "./challenge-handling/challenge-proms";
+import { patientReduce } from "./util";
+import { startRoundStage, selectTimeStage, runTimeStage, winRoundStage } from "./round-handling/round-stages-fns";
+
 
 /* game flow
     -issue challenge (some setup can begin)
@@ -13,6 +16,18 @@ if(gameEnv = discordjs) {/* build discordAPI event emmitters*/}
 if(gameEnv = web) {/* build webAPI event emmitters*/}
 // etc
 
-challengeMaking(gameEnv)
-    .then(challengeResponding) 
-    Promise.race(gameEnding, gamePlaying)
+    const schedule = [
+        challengeMaking,
+        challengeResponding,
+        // break this up?
+        startRoundStage,
+        selectTimeStage,
+        runTimeStage,
+        winRoundStage
+    ]
+
+patientReduce(schedule, (acc, stage, index, schedule) => {
+
+    stage(acc);
+
+}, gameEnv)

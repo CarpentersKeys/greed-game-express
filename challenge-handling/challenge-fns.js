@@ -11,5 +11,4 @@ function acceptChallenge({ players, numberRounds, gameEnv } = issueChallengeResu
 
     return deepClone(flattenToObj(arguments[0]), acceptChallengePromise())
 }
-// returns promise resolves to challengeResult o
-
+// returns promise resolves to challengeResult
