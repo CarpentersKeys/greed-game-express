@@ -1,5 +1,10 @@
+export { challengeMaking, challengeResponding, timerRunning }
+// -----------------------------------------------------------------------
+// functions that invoke new Promise() and handles the arguments they need
 
-export function runTimePromise({ timeLimit, players } = selectTimeResult) {
+};
+
+function timerRunning({ timeLimit, players } = selectTimeResult) {
 
     const { timerPlayer, greedyPlayer } = players;
 
@@ -12,7 +17,7 @@ export function runTimePromise({ timeLimit, players } = selectTimeResult) {
             timeLimit,
         }), timeLimit);
 
-        greedyOnClick(() => {
+        onGreedyClick(() => {
             clearTimeout(timer);
             const timeReached = new Date().getTime() - startTime;
             resolve({
