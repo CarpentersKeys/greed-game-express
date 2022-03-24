@@ -36,22 +36,32 @@ function patientReduce(array, callback, initialValue, thenableBehaviour) {
 
     return reduceRecurcsively(array, callback, initialValue);
 
+    // what happens if no initial value?
     function reduceRecurcsively(arr, cb, acc, i = 0) {
+
         if (i < 0) { throw new Error('index has been tampered with'); }
 
         if (i >= arr.length) { return acc; }
 
         const elem = arr[i];
 
-        // invoke cb with the accious, current, index, and array elements
+        // just return the first element as the accumulator if no initial value is given
+        if (acc === undefined && i === 0) { return reduceRecurcsively(arr, cb, elem, i + 1); }
+        if (elem.then) {
+            return elem
+                .then(next => { return reduceRecurcsively(arr, cb, next, i + 1); })
+        }
+
+        // invoke cb with the acc, current, index, and array elements
         // should allow for normal array.reduce() behaviour
         const next = cb(acc, elem, i, arr);
         // find anything with a .then() method on it
         const thenables = filterForThenables(next);
 
         // if no thenable, just call the next recursion
-        if (thenables?.length <= 0) { return reduceRecurcsively(arr, cb, next, i + 1); }
+        if (!thenables?.length > 0) { return reduceRecurcsively(arr, cb, next, i + 1); }
         if (thenables?.length > 0) {
+            console.log(thenables);
             // if there is a thenable wait for it to be fullfilled or rejected
             return metaThenable(thenables, thenableBehaviour)
                 .then(() => {
@@ -90,8 +100,7 @@ function filterForThenables(data) {
 
     const level = emptyObjectsAndFlatten(data);
     if (Array.isArray(level)) { return level.filter(e => e.then) }
-    return level;
-
+    return undefined
 }
 
 // takes anything and flattens it recursively
@@ -127,21 +136,12 @@ const emptyObjectsAndFlatten = (data) => {
 
     function isobject(item) {
         if (typeof (item) !== 'object'
-            || !(item instanceof object)
-            || item instanceof string
-            || item instanceof number
+            || !(item instanceof Object)
+            || item instanceof String
+            || item instanceof Number
             || item.then) { return false }
 
         return true
     }
 
 }
-
-const testSc = [1, 2, 3]
-
-const testpat = patientReduce(testSc, (acc, curr, i) => {
-    if (i > 1) { i = 0 }
-    return acc.concat(curr * 5)
-}, [])
-
-testpat

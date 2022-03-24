@@ -9,5 +9,8 @@
   },
   "author": "",
   "license": "ISC",
-  "module": "true"
+  "module": "true",
+  "dependencies": {
+    "discord.js": "^13.6.0"
+  }
 }

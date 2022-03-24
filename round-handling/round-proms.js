@@ -1,4 +1,5 @@
 export { challengeMaking, challengeResponding, timerRunning }
+import events from 'events';
 // -----------------------------------------------------------------------
 // functions that invoke new Promise() and handles the arguments they need
 
@@ -17,7 +18,7 @@ function timerRunning({ timeLimit, players } = selectTimeResult) {
             timeLimit,
         }), timeLimit);
 
-        onGreedyClick(() => {
+        events.EventEmitter.once('greedyClick', () => {
             clearTimeout(timer);
             const timeReached = new Date().getTime() - startTime;
             resolve({
