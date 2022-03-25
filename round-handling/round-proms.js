@@ -3,7 +3,6 @@ import events from 'events';
 // -----------------------------------------------------------------------
 // functions that invoke new Promise() and handles the arguments they need
 
-};
 
 function timerRunning({ timeLimit, players } = selectTimeResult) {
 
