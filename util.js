@@ -5,13 +5,13 @@ function deepClone(obj) {
     return JSON.parse(JSON.stringify(obj));
 }
 
-function flattenToObj(previousResults, ...newProps) {
+function flattenToObj(previousResults, ...newProps) { // pretty sure this is useless
 
     return {
-        ...previousResults,
-        ...newProps
+        previousResults,
+        newProps
     }
-    // the idea is to pass arguments[0] (results object param) with any new additions
+    // the idea is to pass results object param with any new additions
 }
 
 function patientReduce(array, callback, initialValue, thenableBehaviour) {
@@ -36,7 +36,6 @@ function patientReduce(array, callback, initialValue, thenableBehaviour) {
 
     return reduceRecurcsively(array, callback, initialValue);
 
-    // what happens if no initial value?
     function reduceRecurcsively(arr, cb, acc, i = 0) {
 
         if (i < 0) { throw new Error('index has been tampered with'); }
@@ -52,12 +51,32 @@ function patientReduce(array, callback, initialValue, thenableBehaviour) {
                 .then(next => { return reduceRecurcsively(arr, cb, next, i + 1); })
         }
 
-        // invoke cb with the acc, current, index, and array elements
-        // should allow for normal array.reduce() behaviour
-        const next = cb(acc, elem, i, arr);
-        // find anything with a .then() method on it
-        const thenables = filterForThenables(next);
+        //check for thenables on the upcoming element (promises on the array) 
+        //or the incoming accumulator (promises passed or inital value promises)
+        const preThenables = filterForThenables(...acc, ...elem)
+        if (preThenables?.length > 0) {
+            // if there's a thenable on 
+            return Promise.all(preThenables)
+                .then(() => {
+                    const next = cb(acc, elem, i, arr);
+                    const thenables = filterForThenables(next);
+                    return {thenables, arr, cb, next, i}
+                })
+                .then(awaitAndOrReturn)
+        } else {
+            // invoke cb with the acc, current, index, and array elements
+            // should allow for normal array.reduce() behaviour
+            const next = cb(acc, elem, i, arr);
+            // find anything with a .then() method on it
+            const thenables = filterForThenables(next);
+            return awaitAndOrReturn({thenables, arr, cb, next, i});
+        }
 
+    }
+
+    // check for thenables, if none return, calling next recursion
+    //  if thenables wait for them then pseudo recurse
+    function awaitAndOrReturn({thenables, arr, cb, next, i}) {
         // if no thenable, just call the next recursion
         if (!thenables?.length > 0) { return reduceRecurcsively(arr, cb, next, i + 1); }
         if (thenables?.length > 0) {
@@ -70,6 +89,7 @@ function patientReduce(array, callback, initialValue, thenableBehaviour) {
                 });
         }
     }
+
     function metaThenable(thenables, thenableBehaviour) {
         /**
          * single thenable returns, 

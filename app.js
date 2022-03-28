@@ -1,7 +1,7 @@
 import { challengeMaking, challengeResponding } from "./challenge-handling/challenge-proms";
 import { patientReduce } from "./util";
 import { startRoundStage, selectTimeStage, runTimeStage, winRoundStage } from "./round-handling/round-stages-fns";
-
+import { awaitChallenge, makeChallenge } from './challenge-handling/challenge-fns';
 
 /* game flow
     -issue challenge (some setup can begin)
@@ -10,24 +10,45 @@ import { startRoundStage, selectTimeStage, runTimeStage, winRoundStage } from ".
     -get results
 */
 
-const gameEnv = GAME_ENV;
+// some constants for reference
+const gameClient = GAME_CLIENT; // some logic from client side here
+Object.freeze(gameClient);
 
-if(gameEnv = discordjs) {/* build discordAPI event emmitters*/}
-if(gameEnv = web) {/* build webAPI event emmitters*/}
-// etc
+const CHALLENGE_SCHEDULE = [
+    awaitChallenge,
+    makeChallenge
+]
+Object.freeze(CHALLENGE_SCHEDULE);
 
-    const schedule = [
-        challengeMaking,
-        challengeResponding,
-        // break this up?
-        startRoundStage,
-        selectTimeStage,
-        runTimeStage,
-        winRoundStage
-    ]
+const ROUND_SCHEDULE = [
+    startRoundStage,
+    selectTimeStage,
+    runTimeStage,
+    winRoundStage
+]
+Object.freeze(ROUND_SCHEDULE);
 
-patientReduce(schedule, (acc, stage, index, schedule) => {
 
-    stage(acc);
+awaitChallenge(gameClient) 
+// the app booted: initialize given client, await challenges
+//return initial challengeMaking promise(players, numberOfRounds, gameClient), 
+    .then(makeChallenge) 
+// someone made a challenge: send the UI to the user who was challenged
+// returns an object(playesr, numberOfRounds, gameClient, challengeResponding promise) 
+    .catch((rejection) => {/* handle rejection*/  console.log(rejection)})
+    .then((makeChallengeResult) => {
 
-}, gameEnv)
+
+        patientReduce(ROUND_SCHEDULE, (acc, stage, index, schedule) => {
+
+            stage(acc);
+
+        })
+
+    })
+
+    function playRounds(numberOfRounds, cb) {
+
+
+
+    }

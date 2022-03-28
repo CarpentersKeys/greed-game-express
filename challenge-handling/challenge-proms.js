@@ -12,8 +12,7 @@ function challengeMaking(gameEnv) {
         })
 
         gameEnv.addEventListener('botInactive', (logs) => {
-            console.log('bot became inactive. log:', logs)
-            reject();
+            reject('bot became inactive. log:', logs);
         })
     })
 };
@@ -23,8 +22,15 @@ function challengeResponding({players, numberRounds, gameEnv}) {
     return newPromise((resolve, reject) => {
 
         gameEnv.addEventListener('onAccept', (players, numberRounds) => {
-            resolve()
+            resolve(true);
         })
+
+        // reject after 20s
+        setTimeout(() => {
+
+            sendChallengeTimeoutMessage(); // doesn't exist yet actually probably handle this higher up 
+            reject('challenge timed out')
+        }, 1000 * 20);
 
     })
 }

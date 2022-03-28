@@ -14,6 +14,8 @@ todo!
         game result reducde
         startstage
 
+    test:
+        patientReduce, does it properly handle thenables in the return of the acc or on the arr
 
     ui
         prepare fs for ui clients (rename app.js to game.js?)
@@ -62,3 +64,13 @@ refactor ideas:
 theme:
     prisoners dilemma
        at the end both players can choose if they want to play again, if they both choose to play again another round is started, if one choses to and the other doesn't, that player sthsthsth
+
+client responsibilities:
+    send UI and messages
+    receieve responses
+        players list, which players is the challenger
+    emit events with response info
+
+server (it's all server baby) responsibilities:
+    recieve client events
+    game logic
