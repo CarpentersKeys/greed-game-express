@@ -53,7 +53,7 @@ function patientReduce(array, callback, initialValue, thenableBehaviour) {
 
         //check for thenables on the upcoming element (promises on the array) 
         //or the incoming accumulator (promises passed or inital value promises)
-        const preThenables = filterForThenables(...acc, ...elem)
+        const preThenables = filterForThenables([elem, acc])
         if (preThenables?.length > 0) {
             // if there's a thenable on 
             return Promise.all(preThenables)
@@ -102,9 +102,9 @@ function patientReduce(array, callback, initialValue, thenableBehaviour) {
         if (thenables.length === 1) { return thenables; }
 
         const allOrDefault =
-            string === 'all'
-            || !(string instanceof String)
-            || !(typeof (string) === 'string')
+            thenableBehaviour === 'all'
+            || !(thenableBehaviour instanceof String)
+            || !(typeof (thenableBehaviour) === 'string')
             || undefined;
 
         if (allOrDefault) { return Promise.all(thenables); }
@@ -149,7 +149,7 @@ const emptyObjectsAndFlatten = (data) => {
         if (Array.isArray(data)) {
             arr.push(data);
         } else if (isobject(data)) {
-            arr.push(object.values(data))
+            arr.push(Object.values(data))
         } else { return data }
         return arr;
     }
