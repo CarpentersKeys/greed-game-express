@@ -1,4 +1,4 @@
-export { emptyObjectsAndFlatten, deepClone, flattenToObj, patientReduce, filterForThenables }
+export { emptyObjectsAndFlatten, deepClone, flattenToObj, patientReduce, filterForThenables, isObject}
 
 
 function deepClone(obj) {
@@ -48,6 +48,9 @@ function patientReduce(array, callback, initialValue, thenableBehaviour) {
         if (acc === undefined && i === 0) { return reduceRecurcsively(arr, cb, elem, i + 1); }
         if (elem.then) {
             return elem
+                .then(elemResolved => {
+                    return cb(acc, elem, i, arr)
+                })
                 .then(next => { return reduceRecurcsively(arr, cb, next, i + 1); })
         }
 
@@ -60,7 +63,7 @@ function patientReduce(array, callback, initialValue, thenableBehaviour) {
                 .then(() => {
                     const next = cb(acc, elem, i, arr);
                     const thenables = filterForThenables(next);
-                    return {thenables, arr, cb, next, i}
+                    return { thenables, arr, cb, next, i }
                 })
                 .then(awaitAndOrReturn)
         } else {
@@ -69,14 +72,14 @@ function patientReduce(array, callback, initialValue, thenableBehaviour) {
             const next = cb(acc, elem, i, arr);
             // find anything with a .then() method on it
             const thenables = filterForThenables(next);
-            return awaitAndOrReturn({thenables, arr, cb, next, i});
+            return awaitAndOrReturn({ thenables, arr, cb, next, i });
         }
 
     }
 
     // check for thenables, if none return, calling next recursion
     //  if thenables wait for them then pseudo recurse
-    function awaitAndOrReturn({thenables, arr, cb, next, i}) {
+    function awaitAndOrReturn({ thenables, arr, cb, next, i }) {
         // if no thenable, just call the next recursion
         if (!thenables?.length > 0) { return reduceRecurcsively(arr, cb, next, i + 1); }
         if (thenables?.length > 0) {
@@ -148,13 +151,17 @@ const emptyObjectsAndFlatten = (data) => {
         const arr = [];
         if (Array.isArray(data)) {
             arr.push(data);
-        } else if (isobject(data)) {
+        } else if (isObject(data)) {
             arr.push(Object.values(data))
         } else { return data }
         return arr;
     }
 
-    function isobject(item) {
+
+
+}
+
+    function isObject(item) {
         if (typeof (item) !== 'object'
             || !(item instanceof Object)
             || item instanceof String
@@ -164,4 +171,23 @@ const emptyObjectsAndFlatten = (data) => {
         return true
     }
 
+//patientReduce refactor
+function newPatRed (array, callbackFunction, initialValue, thenableBehaviour) {
+
+    /**
+     * check initial value and 
+     */
+
 }
+
+/**questions:
+ * when do I want to resolve promises?
+ *      if I resolve at the beginning, I won't have time to run my cb logic
+ *      resovle at the end means promises on the incoming arr would have to be resolved in the callback somehow 
+ * is there a way to replace promises with their resolved values when it happens? custom promise.all?
+ */
+
+/**
+ *  in my special case I need to pass functions that will result in objects that contain promises
+ *  the functions are invoked inside the cb, their resulting objects will be referenced on the accumulator
+ */
