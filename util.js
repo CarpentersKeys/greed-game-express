@@ -1,5 +1,8 @@
-export { emptyObjectsAndFlatten, deepClone, flattenToObj, patientReduce, filterForThenables, isObject}
+export {hasChildren, accessComputedMember, computeMemberAccessString, emptyObjectsAndFlatten, deepClone, flattenToObj, patientReduce, filterForThenables, isObject}
 
+function hasChildren(sth) {
+    return !!(sth.length || Object.keys(sth).length)
+}
 
 function deepClone(obj) {
     return JSON.parse(JSON.stringify(obj));
@@ -170,6 +173,70 @@ const emptyObjectsAndFlatten = (data) => {
 
         return true
     }
+
+function computeMemberAccessString(dataStructure, condition) {
+
+    const accessString = (function recur(data, cond, acc) {
+        if (cond(data)) { return Object.freeze(acc); };
+
+        // if Array,  
+        if (Array.isArray(data)) {
+            // try to satisfy the condition on this level
+            const ind = data.findIndex(e => {
+                return cond(e);
+            });
+            if (ind !== -1) {
+                return Object.freeze([...acc, '' + ind]);
+            };
+
+            // if not, go deeper
+            for (const datInd in data) {
+                const datum = data[datInd]
+                if (hasChildren(datum)) {
+                    const result = recur(datum, cond, [...acc, '' + datInd]);
+                    if (result) { return result; }
+                };
+            };
+        };
+
+        // if obj, values().find()
+        if (isObject(data)) {
+            const entries = Object.entries(data);
+            const ind = entries
+                .findIndex(e => {
+                    return cond(e[1]);
+                })
+            if (!ind === -1) {
+                acc.push(entries[ind][0]);
+                return Object.freeze(acc);
+            };
+
+            //if not, go deeper
+            for (const datProp in data) {
+                datProp
+                const datum = data[datProp]
+                if (hasChildren(datum)) {
+                    const result = recur(datum, cond, [...acc, '' + datProp]);
+                    if (result) { return result; }
+                };
+            };
+        };
+        return;
+
+    }(dataStructure, condition, []))
+
+    if (accessString) { return accessString.join('.'); };
+    return console.log(`condition: [${condition.name}] not met on dataStructure: [${dataStructure}]`);
+};
+
+function accessComputedMember(accessString, dataStructure) {
+    return accessString
+    .split('.')
+    .reduce((prev, curr) => {
+        if (prev) { return prev[curr]; };
+        return prev;
+    }, dataStructure || self)
+}
 
 //patientReduce refactor
 function newPatRed (array, callbackFunction, initialValue, thenableBehaviour) {

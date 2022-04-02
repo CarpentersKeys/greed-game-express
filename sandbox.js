@@ -1,99 +1,101 @@
-import { emptyObjectsAndFlatten, filterForThenables, isObject } from "./util"
+import {accessComputedMember, computeMemberAccessString, emptyObjectsAndFlatten, filterForThenables, isObject } from "./util"
 
-const prom1 = new Promise((resolve) => {
-    setTimeout(resolve, 0, '200')
-})
-const prom2 = new Promise((resolve) => {
-    setTimeout(resolve, 0, '300')
-})
-const prom3 = new Promise((resolve) => {
-    setTimeout(resolve, 0, '400')
-})
+// const prom1 = new Promise((resolve) => {
+//     setTimeout(resolve, 0, '200')
+// })
+// const prom2 = new Promise((resolve) => {
+//     setTimeout(resolve, 0, '300')
+// })
+// const prom3 = new Promise((resolve) => {
+//     setTimeout(resolve, 0, '400')
+// })
 
-const arr = [
-    {
-        prom1,
-        prom2
-    },
-    prom3
-]
-const newarr = await awaitArr(arr)
-newarr[1] + 'sth'
+// const testArr = [
+//     {
+//         prom1,
+//         prom2,
+//         some: 'simple'
+//     },
+//     prom3
+// ];
+
+// const testObj = {
+//     tell: [0, 'one', 2],
+//     shout: 'four',
+// };
+
+// // typeFns
 
 
+// function objArrOrPrim(data) {
 
-async function awaitArr(array) {
+//     if (Array.isArray(data)) { return 'array'; };
+//     if (typeof (data) === 'string' || 'number') { return 'primitive'; };
+//     if (data instanceof 'String' || 'Number') { return 'primitive'; };
+//     if (isObject(data)) { return 'object'; };
 
-    return await Promise.all(array.map(async (item) => {
-        if (item.then) { return await (item); }
-        return item
-    }));
-}
+//     console.log('unknown data type encountered, returning \'undefined\'\n', data)
+//     return
+// }
 
-const obj = {
-    promone: prom1,
-    promthree: prom3,
-}
+// // awaitTypes
 
-async function awaitObj(object) {
+// // const newArr = await awaitArr(testArr)
+// async function awaitArr(array) {
 
-    const awaitedArr =
-        await Promise.all(
-            Object.entries(obj)
-                .map(async entry => {
+//     return await Promise.all(array.map(async (item) => {
+//         if (item.then) { return await (item); }
+//         return item
+//     }));
+// }
 
-                    let awaited
-                    if (entry[1].then) { awaited = await entry[1]; };
+// // const newObj = await awaitObj(testObj)
+// async function awaitObj(object) {
 
-                    Object.freeze(awaited);
-                    return [entry[0], awaited];
-                })
-        )
+//     const awaitedArr =
+//         await Promise.all(
+//             Object.entries(obj)
+//                 .map(async entry => {
 
-    return Object.fromEntries(awaitedArr);
-}
+//                     let awaited
+//                     if (entry[1].then) { awaited = await entry[1]; };
 
-function awaitThenables(data) {
+//                     Object.freeze(awaited);
+//                     return [entry[0], awaited];
+//                 })
+//         )
 
-    data
+//     return Object.fromEntries(awaitedArr);
+// }
 
-    (async function recur() {
+// // awaitComplexObj(arr)
 
-        let newData;
+// // awaits all thenables within a any object, array, primitive structure
+// function awaitComplexObj(data) {
 
-        if (!data) { return; };
-        if (Array.isArray(data)) { 
-            newData = await awaitArr(data); 
-            newData.map(datum => {
-                return recur(datum)
-            });
-        };
-        if (isObject) {
-            newData = await awaitObj(data);
-            for (const datum in newData) {
-                return recur(datum);
-            };
-        };
-        if (data.then) { newData = await data; };
+//     recursiveReplace(data, 'conditional await fn')
 
-        if (newData) {
-            Object.freeze(newData);
-            return newData;
-        } else { return data; };
+// }
+
+// // recursiveReplace(['one', 'two', 'three'], () => {
+// //     if ('one') { return 111 }
+// //     if ('two') { return 222 }
+// //     if ('three') { return 333 }
+// // })
+
+// NEXT
+function recursiveReplace(dataStructure, datumOperation) {
+
+    // new data structure with the same shape as dataStructure
+    const newStrct = JSON.parse(JSON.stringify(dataStructure));
+
+    (function recur(data = dataStructure) {
+
+        if (!hasChildren) {
+            // at the position data is found on dataStructure
+            // set newStrct to the return value of the callback of data
+            newStrct[computeMemberAccessString(dataStructure, data)] = datumOperation(data);
+            return
+        }
     }());
-
-    // iterate through a complex object
-    // test for array or object or single value
-    //array: map over array awaiting each thenable and then assigning it's value to that index of new array
-
-    //object: for...in an object, awaiting each thenable an assigning values to a new obj
-    // val: await is thenable and assign to the new thing
-
 }
-
-let awaitTest = prom1
-// awaitTest = awaitThenables(awaitTest)
-
-var oarr = [1, 2, 3, 4, 5];
-
-
