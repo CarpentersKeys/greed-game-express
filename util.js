@@ -1,7 +1,7 @@
 export {hasChildren, accessComputedMember, computeMemberAccessString, emptyObjectsAndFlatten, deepClone, flattenToObj, patientReduce, filterForThenables, isObject}
 
 function hasChildren(sth) {
-    return !!(sth.length || Object.keys(sth).length)
+    return !!(sth?.length || Object?.keys(sth)?.length)
 }
 
 function deepClone(obj) {
@@ -235,8 +235,9 @@ function accessComputedMember(accessString, dataStructure) {
     .reduce((prev, curr) => {
         if (prev) { return prev[curr]; };
         return prev;
-    }, dataStructure || self)
+    }, dataStructure)
 }
+
 
 //patientReduce refactor
 function newPatRed (array, callbackFunction, initialValue, thenableBehaviour) {
