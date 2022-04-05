@@ -1,116 +1,6 @@
-import { emptyObjectsAndFlatten, filterForThenables, isObject } from "./util/util"
+function recursiveReplace(dataStructure, datumOperation) {
 
-
-// const prom1 = new Promise((resolve) => {
-//     setTimeout(resolve, 0, '200')
-// })
-// const prom2 = new Promise((resolve) => {
-//     setTimeout(resolve, 0, '300')
-// })
-// const prom3 = new Promise((resolve) => {
-//     setTimeout(resolve, 0, '400')
-// })
-
-// const testArr = [
-//     {
-//         prom1,
-//         prom2,
-//         some: 'simple'
-//     },
-//     prom3
-// ];
-
-// const testObj = {
-//     tell: [0, 'one', 2],
-//     shout: 'four',
-// };
-
-// // typeFns
-
-
-// function objArrOrPrim(data) {
-
-//     if (Array.isArray(data)) { return 'array'; };
-//     if (typeof (data) === 'string' || 'number') { return 'primitive'; };
-//     if (data instanceof 'String' || 'Number') { return 'primitive'; };
-//     if (isObject(data)) { return 'object'; };
-
-//     console.log('unknown data type encountered, returning \'undefined\'\n', data)
-//     return
-// }
-
-// // awaitTypes
-
-// // const newArr = await awaitArr(testArr)
-// async function awaitArr(array) {
-
-//     return await Promise.all(array.map(async (item) => {
-//         if (item.then) { return await (item); }
-//         return item
-//     }));
-// }
-
-// // const newObj = await awaitObj(testObj)
-// async function awaitObj(object) {
-
-//     const awaitedArr =
-//         await Promise.all(
-//             Object.entries(obj)
-//                 .map(async entry => {
-
-//                     let awaited
-//                     if (entry[1].then) { awaited = await entry[1]; };
-
-//                     Object.freeze(awaited);
-//                     return [entry[0], awaited];
-//                 })
-//         )
-
-//     return Object.fromEntries(awaitedArr);
-// }
-
-// // awaitComplexObj(arr)
-
-// // awaits all thenables within a any object, array, primitive structure
-// function awaitComplexObj(data) {
-
-//     recursiveReplace(data, 'conditional await fn')
-
-// }
-
-
-function hasChildren(sth) {
-    return Array.isArray(sth) || isObject(sth);
-}
-{// testing block
-
-    // const data = {
-    //     tim: [
-    //         { mile: 20 },
-    //         { mile: 30 },
-    //         { mile: 40 },
-    //     ],
-    //     bill: 0,
-    //     bie: [1]
-    // }
-
-    // const data = [
-    //     [2],
-    //     { one: 20, }
-    // ]
-
-    // const num = 30
-    // num.toString().split('')
-
-    // const result = recursiveReplace(data, (e) => {
-    //     return e.toString().split('') ;
-    // });
-
-    // result
-
-}
-async function recursiveReplace(dataStructure, datumOperation) {
-
+    Object.freeze(dataStructure); // does this freeze it outside?
     // new data structure with the same shape as dataStructure
     const newStrct = JSON.parse(JSON.stringify(dataStructure));
     const previousMemberAccessStrings = new Set()
@@ -150,6 +40,9 @@ async function recursiveReplace(dataStructure, datumOperation) {
                 previousMemberAccessStrings.add(memberAccessString);
                 // perform operation on the data
                 const newDatum = datumOperation(data);
+                typeof (memberAccessString)
+                typeof (dataStructure)
+                dataStructure[memberAccessString];
                 // assign the new data to the new data structure
                 setByAccessString(newStrct, newDatum, memberAccessString);
             };
@@ -202,31 +95,6 @@ function setByAccessString(dataStructure, setWith, memberAccessString, logErrors
         }, dataStructure) || logErrors && console.error('accessByString: member not found on dataStructure')
 }
 
-// testing block
-// const cA = [1, 2, 3, 4,
-//     {
-//         five: 5,
-//         arr: [7]
-//     }
-// ]
-
-// const cO = {
-//     one: 1,
-//     two: 2,
-//     three: [
-//         4, 5
-//     ],
-// }
-
-
-// const cMASResult = computeMemberAccessString(cO, (e) => {
-//     return e === 4;
-// }
-// )
-
-// cMASResult;
-// accessByString(cO, 'three.1')//?
-
 /** details
  * Traverse a complex object and return an array of access segments for the first element that meets a given condition
  * Traversal is depth recursive and iterative across each layer
@@ -240,7 +108,6 @@ function setByAccessString(dataStructure, setWith, memberAccessString, logErrors
  * @param {bool -optional-} logErrors set to false to suppress
  * @returns {array} of member access segments
  */
-
 function computeMemberAccessString(dataStructure, conditionFn, logErrors = true) {
 
     function checkCondition(data, accessSegmentsArray, locStr) {
@@ -318,26 +185,3 @@ function computeMemberAccessString(dataStructure, conditionFn, logErrors = true)
         return console.error(`computeMemberAccessString: \ncondition: [${conditionFn.name}] not met on dataStructure: [${dataStructure}]`);
     }
 };
-
-
-const prom1 = new Promise(resolve => {
-    setTimeout(resolve, 100, '1')
-})
-const prom2 = new Promise(resolve => {
-    setTimeout(resolve, 200, '2')
-})
-const prom3 = new Promise(resolve => {
-    setTimeout(resolve, 300, '3')
-})
-
-const promArr = [prom1, prom2, prom3]
-
-
-const result = await recursiveReplace(promArr, async e => {
-    if(e.then) {
-        const res = await e
-        res
-        return await res;
-    }
-})
-result
