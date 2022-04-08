@@ -5,7 +5,7 @@ todo!
         just chain two patientReducers?
 
     util
-        should I add patientReducer to Array.prototype? 
+        should I make a deep promise.all that can rebuild the object? or just stick with recursion for depth?
 
     valiudation fn:
         refactor role validation

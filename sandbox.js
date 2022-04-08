@@ -1,4 +1,4 @@
-import { emptyObjectsAndFlatten, filterForThenables, isObject } from "./util/util"
+import { deepClone, emptyObjectsAndFlatten, filterForThenables, isObject } from "./util/util"
 
 
 // const prom1 = new Promise((resolve) => {
@@ -74,7 +74,7 @@ import { emptyObjectsAndFlatten, filterForThenables, isObject } from "./util/uti
 // // awaits all thenables within a any object, array, primitive structure
 // function awaitComplexObj(data) {
 
-//     recursiveReplace(data, 'conditional await fn')
+//     deepMapAny(data, 'conditional await fn')
 
 // }
 
@@ -102,14 +102,14 @@ function hasChildren(sth) {
     // const num = 30
     // num.toString().split('')
 
-    // const result = recursiveReplace(data, (e) => {
+    // const result = deepMapAny(data, (e) => {
     //     return e.toString().split('') ;
     // });
 
     // result
 
 }
-async function recursiveReplace(dataStructure, datumOperation) {
+async function deepMapAny(dataStructure, datumOperation) {
 
     // new data structure with the same shape as dataStructure
     const newStrct = JSON.parse(JSON.stringify(dataStructure));
@@ -128,7 +128,7 @@ async function recursiveReplace(dataStructure, datumOperation) {
         // curry in the target
         return function equalsNovel(isLike, memberAccessString, locStr) {
 
-            if (previousMemberAccessStrings.has(memberAccessString)) { return  false; };
+            if (previousMemberAccessStrings.has(memberAccessString)) { return false; };
             return target === isLike;
         }
     };
@@ -330,14 +330,103 @@ const prom3 = new Promise(resolve => {
     setTimeout(resolve, 300, '3')
 })
 
-const promArr = [prom1, prom2, prom3]
+const promArr = [
+    prom1,
+    4,
+    {
+        notProm: "cola",
+        promse: prom2,
+    },
+    prom3
+]
+
+awaitDeepAny(promArr)
+        hasChildren(prom1)
 
 
-const result = await recursiveReplace(promArr, async e => {
-    if(e.then) {
-        const res = await e
-        res
-        return await res;
-    }
-})
-result
+// IDEAS new promise that resolves on a recursive functions base case
+// base case may be that every member has been accessed
+// other cases are thenables and non thenables with no children and things with children
+// if thenable .then(e =< same member access on clone = e).then(call recursive fn)
+// returns a promise that resolves to a clone of the original data with thenalbes awaited
+
+function awaitDeepAny(dataStructure) {
+
+    // new data structure with the same shape as dataStructure
+    const newStrct = JSON.parse(JSON.stringify(dataStructure));
+    const previousMemberAccessStrings = new Set()
+
+    /** details
+     * @curryingFunction -> @conditionalFunction
+     * checking if two items are equal 
+     * and that a third isn't found on @previousMemberAccessStrings
+     * @param {*} target value to test
+     * @param {array} @previousMemberAccessStrings if, when calling the curried function, 
+     *                                             targets' accessString is found on this, return false
+     * @returns {function} that returns true if both conditions pass, otherwise, false
+     */
+    const curryEquals = (target) => {
+        // curry in the target
+        return function equalsNovel(isLike, memberAccessString, locStr) {
+
+            if (previousMemberAccessStrings.has(memberAccessString)) { return false; };
+            return target === isLike;
+        }
+    };
+
+    return (function recur(data = dataStructure) {
+        if (data === undefined) { return; };
+
+        // is a primitive, so just operate, assign to the new array and return
+        if (!hasChildren(data)) {
+            // at the position data is found on dataStructure
+            // set newStrct to the return value of the callback of data
+
+            // curry in the data to test
+            const equalsNovel = curryEquals(data);
+            // get a memberAccessString from dataStrucutre that equals the current data and hasn't been used yet
+            const memberAccessString = computeMemberAccessString(dataStructure, equalsNovel)
+            // if we found a working access string, add it to the Set of previously used ones
+            if (memberAccessString) {
+                previousMemberAccessStrings.add(memberAccessString);
+                // perform operation on the data
+                const newDatum = datumOperation(data);
+                // assign the new data to the new data structure
+                setByAccessString(newStrct, newDatum, memberAccessString);
+
+                // next call
+            };
+        }
+        // below implicitly has children. shoud be an object or array (maps etc unhandled)
+
+        if (Array.isArray(data)) {
+
+            // recursively operate on each item that has no children
+            return (function recurArr(arr, ind = 0) {
+                const length = arr.length
+                const item = arr[ind]
+
+                if(ind >= length) { return acc}
+
+                if(!item.then()) {
+                    recur(item);
+                }
+
+
+            }(data))
+
+            // iteratively call depth recursion
+
+        } else if
+            (isObject(data)) {
+
+            (function recurObj() {
+
+            }())
+        };
+
+
+        // some verification would be good, but how? check previousMemberAccessStrings maybe
+        return newStrct;
+    }());
+}
