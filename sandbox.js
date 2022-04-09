@@ -14,8 +14,6 @@ function accessByString(dataStructure, memberAccessString, logErrors = true) {
     return memberAccessString
         .split('.')
         .reduce((prev, curr) => {
-            curr
-            prev
             return prev?.[curr]
         }, dataStructure) || logErrors && console.error('accessByString: member not found on dataStructure')
 }
@@ -46,6 +44,7 @@ function setByAccessString(dataStructure, setWith, memberAccessString, logErrors
  */
 function computeMemberAccessString(dataStructure, conditionFn, logErrors = true) {
 
+
     function checkCondition(data, accessSegmentsArray, locStr) {
 
         const accessString = accessSegmentsArray.join('.');
@@ -57,6 +56,7 @@ function computeMemberAccessString(dataStructure, conditionFn, logErrors = true)
 
         /*main fn - recursive IIFE*/
         (function recur(data = dataStructure, segArr = []) {
+            // console.log(data)
             // return that arr of member access segments
             if (checkCondition(data, segArr)) { return segArr; };
 
@@ -114,30 +114,16 @@ function computeMemberAccessString(dataStructure, conditionFn, logErrors = true)
      * @example accessByString(dataStructure, memberAccessString = 'default.access.4.0')
      */
     if (memberAccessSegmentsArray) {
-        return Object.freeze(memberAccessSegmentsArray.join('.'));
+        return Object.freeze(memberAccessSegmentsArray.join('.').toString());
     };
     // nothing found that met the condition
     if (logErrors) {
+
         return console.error(`computeMemberAccessString: \ncondition: [${conditionFn.name}] not met on dataStructure: [${dataStructure}]`);
     }
 };
 
-function curryEqualsNovel(target) {
-    /** details * @curryingFunction -> @conditionalFunction
- * checking if two items are equal 
- * and that a third isn't found on @previousMemberAccessStrings
- * @param {*} target value to test
- * @param {array} @previousMemberAccessStrings if, when calling the curried function, 
- *                                             targets' accessString is found on this, return false
- * @returns {function} that returns true if both conditions pass, otherwise, false
- */
-    // curry in the target
-    return function equalsNovel(isLike, memberAccessString) {
 
-        if (previousMemberAccessStrings.has(memberAccessString)) { return false; };
-        return target === isLike;
-    };
-};
 
 
 const prom1 = new Promise(resolve => {
@@ -150,35 +136,50 @@ const prom3 = new Promise(resolve => {
     setTimeout(resolve, 300, 'resolved3')
 })
 
+// can't resolve the same promise value twice
 const promArr = [
     prom1,
     4,
     {
         notProm: "cola",
         promse: prom2,
+        arr: ['cola', 2, prom3]
     },
     prom3
 ]
 
-// IDEAS new promise that resolves on a recursive functions base case
-// base case may be that every member has been accessed
-// other cases are thenables and non thenables with no children and things with children
-// if thenable .then(e =< same member access on clone = e).then(call recursive fn)
-// returns a promise that resolves to a clone of the original data with thenalbes awaited
+//works
+// const promArr = [
+//     prom1,
+//     prom1
+// ]
+
+// const promArr = {
+
+// }
+
+// works
+// const promArr = [
+//     prom1,
+//     [
+//         prom2,
+//     ],
+//     prom3
+// ]
+
+//works
+// const promArr = [
+//     prom1,
+//     prom2,
+//     prom3
+// ]
 
 
-// cannot return things and take mulitple paths, 
-// all steps forward must be recursive or the patience is broken
-
-// send data structure, index, depth
-
-
-const previousMemberAccessStrings = new Set();
 awaitDeepAny(promArr)
     .then((sth) => {
         console.log('awaitDeepAny call:',
-            '\nprom1:', sth[0],
-            '\nprom2:', sth[2].promse,
+            // '\nprom1:', sth[0],
+            // '\nprom2:', sth[2].promse,
             '\nresult:', sth
         )
     })
@@ -189,97 +190,103 @@ awaitDeepAny(promArr)
  * @returns {promise} that resolves with a datastructure clone of the param with value of all thenables awaited
  */
 function awaitDeepAny(dataStructure) {
-
     // new data structure with the same shape as dataStructure
     const newStrct = JSON.parse(JSON.stringify(dataStructure));
+    const initialItemkeys = getItemKeys(dataStructure);
+    const previousMemberAccessStrings = new Set();
 
+    function getItemKeys(item) {
+        const newItemKeys = [];
+        for (const key in item) {
+            newItemKeys.push(key);
+        };
+        return newItemKeys;
+    }
 
+    function curryEqualsNovel(target) {
+        /** details * @curryingFunction -> @conditionalFunction
+         * checking if two items are equal 
+         * and that a third isn't found on @previousMemberAccessStrings
+         * @param {*} target value to test
+         * @param {array} @previousMemberAccessStrings if, when calling the curried function, 
+         *                                             targets' accessString is found on this, return false
+         * @returns {function} that returns true if both conditions pass, otherwise, false
+         */
+        // curry in the target
+
+        return function equalsNovel(isLike, memberAccessString) {
+
+            if (previousMemberAccessStrings.has(memberAccessString)) { return false; };
+            return target === isLike;
+        };
+    };
 
     const replaceAwaitedPassParams = (function curryIn(data = dataStructure) {
 
-        return function replaceAwaitedPassParams(layer, index, layerAccess = []) {
-            const data = layer[index];
+        return function replaceAwaitedPassParams(layer, index, layerAccess, itemKeys) {
+            const key = itemKeys[index]
+            const data = layer[key];
 
             const equalsCond = curryEqualsNovel(data);
+            const accessString = computeMemberAccessString(dataStructure, equalsCond);
+            previousMemberAccessStrings.add(accessString);
 
             return data
                 .then(d => {
-                    setByAccessString(
-                        newStrct,
-                        d,
-                        computeMemberAccessString(dataStructure, equalsCond)
-                    );
-                    return [layer, index + 1, layerAccess];
-                })
+                    setByAccessString(newStrct, d, accessString);
+                    return [layer, index + 1, layerAccess, itemKeys];
+                });
         };
 
     }());
 
-    // FOR TESTING
-    let killswitch = 0;
 
     return new Promise(resolve => {
 
         // [layer = , index = 0, layerAccess = []]
-        (function recur(arr = [dataStructure, 0, []]) {
-            killswitch = killswitch + 1
-            if (killswitch >= 8) {
-                console.log('layer:', layer, '\nindex:', index, '\nlayerAccess:', layerAccess);
-                return resolve(newStrct);
-            }
-
-
-        const [layer, index, layerAccess] = arr;
+        (function recur(arr = [dataStructure, 0, [], initialItemkeys]) {
+            const [layer, index, layerAccess, itemKeys] = arr;
 
             // the entire layer has been traversed, resolve the promise with the awaited data
-            if (index >= layer.length) {
-
-
-        layer[index]
-
+            if (index >= itemKeys.length) {
                 // base case, no further layers to traverse, resolve the promise
                 if (layerAccess === [] || layerAccess.length < 1) {
+
                     return resolve(newStrct);
                 }
-
                 // call into the next layer
-                const nextLayer = layerAccess[layerAccess.length - 1]
-                const newLayerAccess = layerAccess.slice(0, -1)
+                const nextLayer = accessByString(dataStructure, layerAccess[0])
+                const nextLayerAccess = layerAccess.slice(1)
+                const nextItemKeys = getItemKeys(nextLayer);
 
-                return recur([nextLayer, 0, newLayerAccess]);
+                return recur([nextLayer, 0, nextLayerAccess, nextItemKeys]);
             }
 
             // there's still data to traverse on this layer
-            const data = layer[index];
+            const key = itemKeys[index];
+            const data = layer[key];
 
             if (!hasChildren(data)) {
+
                 if (!data?.then) {
-                    return recur([layer, index + 1, layerAccess])
+                    return recur([layer, index + 1, layerAccess, itemKeys])
                 };
 
                 if (data.then) {
-                    return replaceAwaitedPassParams(layer, index, layerAccess)
+                    return replaceAwaitedPassParams(layer, index, layerAccess, itemKeys)
                         .then(recur);
                 };
             };
 
             if (hasChildren(data)) {
-                // console.log('hasChildren(data) === true:',
-                //     "\nindex:", index,
-                //     "\nlayer:", layer
-                // )
-
-                if (data === dataStructure) {
-                    console.log('data === dataStructure');
-                }
-
                 const equalsCond = curryEqualsNovel(data);
                 const accessString = computeMemberAccessString(dataStructure, equalsCond)
+                previousMemberAccessStrings.add(accessString);
                 const newLayerAccess = layerAccess.slice();
 
                 accessString && newLayerAccess.push(accessString);
 
-                return recur([layer, index + 1, newLayerAccess]);
+                return recur([layer, index + 1, newLayerAccess, itemKeys]);
 
             }
 
@@ -302,3 +309,4 @@ function awaitDeepAny(dataStructure) {
 // const accessString = computeMemberAccessString(promArr, equalsNovel)
 // previousMemberAccessStrings.add(accessString);
 // const accessString2 = computeMemberAccessString(promArr, equalsNovel)
+
