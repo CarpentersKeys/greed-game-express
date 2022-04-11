@@ -1,35 +1,31 @@
-import { flattenToObj } from "../util";
 import { challengeMaking, challengeResponding } from "./challenge-proms";
+export { awaitMakeChallenge, awaitChallengeResponse };
 
 
 // the app booted: initialize given client, await challenges
-//return initial challengeMaking promise(players, numberOfRounds, gameClient), 
-function awaitChallenge(gameClient) {
+//return initial challengeMaking promise(players, numberOfRounds), 
+function awaitMakeChallenge({ gameClient }) {
 
-    switch(gameClient) {
-        case 'discordjs': 
+    switch (gameClient) {
+        case 'discordjs':
             // await import '../discordjs/client';
             break;
-        case 'web': 
+        case 'web':
             // await import '../web/client';
             break;
     }
 
-    const awaitChallengeResult = {
-        challengeMade: challengeMaking(),
-    };
-    Object.freeze(awaitChallengeResult);
+    const result = challengeMaking(gameClient);
+    Object.freeze(result);
 
-    return awaitChallengeResult;
+    // { players, numberOfRounds }
+    return result;
 };
 
 
 // someone made a challenge: send the UI to the user who was challenged
 // returns an object(playesr, numberOfRounds, gameClient, challengeResponding promise) 
-function makeChallenge(awaitChallengeResult) {
-
-    // clone and destructure 
-    const { players, numberRounds, gameClient } = deepClone(awaitChallengeResult);
+function awaitChallengeResponse({ gameClient, players, numberOfRounds }) {
 
     // find the challengee
     const playerToChallenge = {
@@ -39,17 +35,11 @@ function makeChallenge(awaitChallengeResult) {
     }
 
     // send the challenge message
-    sendChallengeMessage(playerToChallenge, numberRounds, gameClient);
+    sendChallengeMessage(playerToChallenge, numberOfRounds, gameClient);
 
-    const makeChallengeResult = {
-        challengeResponse: challengeResponding(),
-        players,
-        numberRounds,
-        gameClient,
-    };
-    Object.freeze(makeChallengeResult);
+    const result = { challengeResponse: challengeResponding(), }
+    Object.freeze(result);
 
-    return {awaitChallengeResult, makeChallengeResult};
+    // boolean
+    return result;
 };
-
-export { awaitChallenge, makeChallenge };

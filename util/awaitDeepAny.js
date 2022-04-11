@@ -1,12 +1,21 @@
 import hasChildren from "./hasChildren";
 import computeMemberAccessString from './member-access/computeMemberAccessString';
 import setByAccessString from './member-access/setByAccessString'
+import accessByString from './member-access/accessByString'
 
 export default function awaitDeepAny(dataStructure) {
 /**
  * @param {*} dataStructure any primitive, object or array, with any number of nested objects or arrays
  * @returns {promise} that resolves with a datastructure clone of the param with value of all thenables awaited
  */    // new data structure with the same shape as dataStructure
+
+    if(typeof(dataStructure) !== 'object') {
+        if(dataStructure.then) { 
+            return dataStructure.then(data => { return data;})
+        }
+        return Promise.resolve(dataStructure);
+    }
+
 
     const newStrct = JSON.parse(JSON.stringify(dataStructure));
     const initialItemkeys = getItemKeys(dataStructure);
@@ -89,7 +98,7 @@ export default function awaitDeepAny(dataStructure) {
                     return recur([layer, index + 1, layerAccess, itemKeys])
                 };
 
-                if (data.then) {
+                if (data.then || typeof(data) === 'function') {
                     return replaceAwaitedPassParams(layer, index, layerAccess, itemKeys)
                         .then(recur);
                 };

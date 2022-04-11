@@ -1,3 +1,6 @@
+import hasChildren from "../hasChildren";
+import isObject from "../isObject";
+
 /**
  * FUTURE:
  * refactor so accessSegmentArray is always a string to get ride of unnecessary .join call in checkCondition

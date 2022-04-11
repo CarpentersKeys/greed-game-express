@@ -7,6 +7,3 @@ export default function filterForThenables(data) {
     if (Array.isArray(level)) { return level.filter(e => e.then) }
     return undefined
 }
- 
-
-
