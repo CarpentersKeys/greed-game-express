@@ -24,51 +24,72 @@ const playRounds = (function init() {
         winRoundStage
     ];
 
-    function round(gameState, currentRound) {
+    function round(gameState) {
 
-        const newGameState_Round = { ...gameState };
-        newGameState_Round.currently = `round${currentRound}`;
-        newGameState_Round.roundResults[currentRound - 1] =
+        // shallow copy of state
+        const newGameState = { ...gameState };
+        const { currentRound } = newGameState.current.round;
 
-            patientReduce(ROUND_SCHEDULE, (gameState, currentStageFn, ind, arr) => {
+        newGameState.roundResults[currentRound - 1] =
+            // play a round, add results to state
+            patientReduce(ROUND_SCHEDULE, (roundState, currentStageFn, ind, arr) => {
 
-                const newGameState_Stage = { ...gameState };
-                newGameState_Stage.currently = newGameState_Stage.currently.concat(`, ${currentStageFn.name}`)
+                const newRoundState = { ...roundState };
+                newRoundState.current.stage = currentStageFn.name;
 
-                const stageResult = currentStageFn(gameState);
-                if (ind >= arr.length - 1) {
-                    stageResult.currentRound
+                if (ind = 0) {
+
                 }
 
-                Object.assign(newGameState_Stage, stageResult);
-                Object.freeze(newGameState_Stage);
+                // errors will be handles interally
+                const stageResult = currentStageFn(gameState);
 
-                return newGameState_Stage;
-            }, newGameState_Round)
+                Object.assign(newRoundState, stageResult);
+                Object.freeze(newRoundState);
+
+                // this should make patientReduce reject, to be caught on playRounds
+                if(newRoundState.error) { return reject(newRoundState); }; 
+                // probably wrong 
+
+                return newRoundState;
+            }, {})
+            .catch(roundResults)
+
+        return newGameState; // with updated roundResults
     }
 
     /**
-     * 
      * @param {object} result from either the initial challenge or the previous round
      * @return @param {object} gameResult see result-objects.js
      */
     return function playRounds(gameState) {
 
+        // default assignment and inc the current round
         const { numberOfRounds } = gameState;
         const { currentRound = 0 } = gameState.current.round;
         currentRound += 1;
 
-        if (currentRound - 1 > numberOfRounds) { return gameState; };
+        // base case: all rounds finished
+        if (currentRound > numberOfRounds + 1) { return gameState; };
 
+        // shallow clone the state
         const newGameState = { ...gameState };
+        // first round init
         if (currentRound === 1) {
             newGameState.current.phase = 'game';
             newGameState.roundResults = [];
         };
+        // set the current round
         newGameState.current.round = currentRound;
 
 
+        // play a round
         return round(gameState)
+        .catch(newGameState => {
+            // check out the error here, maybe recover
+            console.log(newGameState.roundResults.error)
+        })
+        // pseudo-recursive call
             .then(playRounds)
     };
 
@@ -84,8 +105,8 @@ const gameStateDummy = {
 
 const obj = {
     ten: {
-        one: 3 
-    } 
+        one: 3
+    }
 }
 
 const { one = 1 } = obj.ten;

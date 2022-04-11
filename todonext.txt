@@ -1,1 +1,3 @@
 appjs
+round reducer fn
+pateintReduce error handling (reject with the error)
