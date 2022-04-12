@@ -2,16 +2,16 @@ import { patientReduce } from './util/patientReduce';
 
 
 function startRoundStage(args) {
-    return Promise.resolve({ sRS: '1' });
+    return { sRS: Promise.resolve('1')};
 };
 function selectTimeStage(args) {
-    return Promise.resolve({ sTS: '2' });
+    return { sTS: Promise.resolve('2')};
 };
 function runTimeStage(args) {
-    return Promise.resolve({ rTS: '3' });
+    return { rTS: Promise.resolve('3')};
 };
 function winRoundStage(args) {
-    return Promise.resolve({ wRS: '4' });
+    return { wRS: Promise.resolve('4')};
 };
 
 
@@ -45,7 +45,7 @@ const playRounds = (function init() {
                 }
 
                 // errors will return a stageResult with an error prop
-                const stageResult = currentStageFn(roundState);
+                const stageResult = currentStageFn(roundState); //
 
                 // merge stageResult into state
                 Object.assign(newRoundState, stageResult);
@@ -84,9 +84,8 @@ const playRounds = (function init() {
         const { numberOfRounds } = gameState;
         let currentRound = gameState.current.round ?? 0;
         currentRound += 1;
-
         // base case: all rounds finished
-        if (currentRound > numberOfRounds + 1) { return gameState; };
+        if (currentRound > numberOfRounds ) { return gameState; };
 
         // shallow clone the state
         const newGameState = { ...gameState };

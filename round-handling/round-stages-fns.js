@@ -1,4 +1,4 @@
-import { assignRoles, swapRoles } from "./round-helper-fns";
+import { assignRoles } from "./round-helper-fns";
 export { startRoundStage, selectTimeStage, runTimeStage, winRoundStage }
 // SCHEDULE STAGE functions
 
@@ -6,26 +6,23 @@ export { startRoundStage, selectTimeStage, runTimeStage, winRoundStage }
 function startRoundStage(roundState) {
 
     const { players } = roundState;
-    const { currentStage } = roundState.current.stage
 
-    // true if both roles assigned
-    const rolesAssigned = PLAYER_ROLES.every(pR => {
-        players.some(p => p.gameRole === pR)
-    })
+    // assigns roles randomly or swaps existing roles
+    const newPlayers = assignRoles(players);
 
-    if (rolesAssigned) { assignRoles(players); };
-    if (!rolesAssigned) { swapRoles(players); };
 
-    const startRoundResult = playerVal(players)
+    const result = { players: newPlayers };
+    Object.freeze(result);
 
-    return startRoundResult;
+    // { players }
+    return result;
 }
 // returns promise resolves to players
 
 // timerPlayer selects time to wait
 function selectTimeStage(players) {
 
-    const selectTimeResult = selectTimePromise()
+    const result = { timeSelected: selectTimePromise()}
 
     // send UI messages
     sendSelectTimeMessage(players.timerPlayer);
