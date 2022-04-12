@@ -21,7 +21,7 @@ function patientReduce(array, callback, initialValue) {
     * @returns the final return value of callback
     */
 
-    return new Promise(resolve => {
+    return new Promise((resolve, reject)  => {
 
         (function reduceRecurcsively(arr = array, cb = callback, acc = initialValue, i = 0) {
 
@@ -37,7 +37,8 @@ function patientReduce(array, callback, initialValue) {
             return awaitDeepAny(elem)
                 .then(elem => { return cb(acc, elem, i, arr); })
                 .then(awaitDeepAny)
-                .then((nxtAcc) => { return reduceRecurcsively(arr, cb, nxtAcc, i + 1); });
+                .then((nxtAcc) => { return reduceRecurcsively(arr, cb, nxtAcc, i + 1); })
+                .catch(result => reject(result));
         }());
     })
 }

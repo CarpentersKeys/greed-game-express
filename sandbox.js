@@ -1,16 +1,17 @@
 import { patientReduce } from './util/patientReduce';
 
+
 function startRoundStage(args) {
-    return Promise.resolve(args);
+    return Promise.resolve({ sRS: '1' });
 };
 function selectTimeStage(args) {
-    return Promise.resolve(args);
+    return Promise.resolve({ sTS: '2' });
 };
 function runTimeStage(args) {
-    return Promise.resolve(args);
+    return Promise.resolve({ rTS: '3' });
 };
 function winRoundStage(args) {
-    return Promise.resolve(args);
+    return Promise.resolve({ wRS: '4' });
 };
 
 
@@ -26,13 +27,15 @@ const playRounds = (function init() {
 
     function round(gameState) {
 
-        // shallow copy of state
-        const newGameState = { ...gameState };
-        const { currentRound } = newGameState.current.round;
+        return new Promise((resolve, reject) => {
 
-        newGameState.roundResults[currentRound - 1] =
+            // shallow copy of state
+            const newGameState = { ...gameState };
+            const currentRound = newGameState.current.round;
+            const { gameClient, players } = newGameState;
+
             // play a round, add results to state
-            patientReduce(ROUND_SCHEDULE, (roundState, currentStageFn, ind, arr) => {
+            patientReduce(ROUND_SCHEDULE, (roundState, currentStageFn, ind) => {
 
                 const newRoundState = { ...roundState };
                 newRoundState.current.stage = currentStageFn.name;
@@ -41,21 +44,34 @@ const playRounds = (function init() {
 
                 }
 
-                // errors will be handles interally
-                const stageResult = currentStageFn(gameState);
+                // errors will return a stageResult with an error prop
+                const stageResult = currentStageFn(roundState);
 
+                // merge stageResult into state
                 Object.assign(newRoundState, stageResult);
                 Object.freeze(newRoundState);
 
-                // this should make patientReduce reject, to be caught on playRounds
-                if(newRoundState.error) { return reject(newRoundState); }; 
+                // check for errors, reject the promise
+                if (newRoundState.error) { return reject(newRoundState); };
                 // probably wrong 
 
                 return newRoundState;
-            }, {})
-            .catch(roundResults)
+            }, {
+                gameClient,
+                players,
+                current: {
+                    round: currentRound,
+                }
+            })
+                .then(roundResult => { 
+                    newGameState.roundResults[currentRound - 1] = roundResult 
+                    Object.freeze(newGameState);
+                    resolve(newGameState);
+                })
 
-        return newGameState; // with updated roundResults
+
+            return newGameState; // with updated roundResults
+        })
     }
 
     /**
@@ -64,9 +80,9 @@ const playRounds = (function init() {
      */
     return function playRounds(gameState) {
 
-        // default assignment and inc the current round
+        // round vars and inc the current round
         const { numberOfRounds } = gameState;
-        const { currentRound = 0 } = gameState.current.round;
+        let currentRound = gameState.current.round ?? 0;
         currentRound += 1;
 
         // base case: all rounds finished
@@ -81,15 +97,16 @@ const playRounds = (function init() {
         };
         // set the current round
         newGameState.current.round = currentRound;
+        Object.freeze(newGameState);
 
 
         // play a round
-        return round(gameState)
-        .catch(newGameState => {
-            // check out the error here, maybe recover
-            console.log(newGameState.roundResults.error)
-        })
-        // pseudo-recursive call
+        return round(newGameState)
+            .catch(gameStateRoundError => {
+                // check out the error here, maybe recover
+                console.log(gameStateRoundError)
+            })
+            // pseudo-recursive call
             .then(playRounds)
     };
 
@@ -98,10 +115,14 @@ const playRounds = (function init() {
 const gameStateDummy = {
     gameClient: 'react',
     players: ['player1', 'player2'],
-    numberOfRounds: 3,
+    numberOfRounds: 1,
     challengeResponse: true,
+    current: {
+        phase: 'challenge',
+        stage: 'awaitChallengeResponse',
+    }
 }
-// playRounds(gameStateDummy);
+playRounds(gameStateDummy);
 
 const obj = {
     ten: {

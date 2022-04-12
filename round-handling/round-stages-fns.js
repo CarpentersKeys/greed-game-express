@@ -1,21 +1,26 @@
-export {startRoundStage, selectTimeStage, runTimeStage, winRoundStage}
+import { assignRoles, swapRoles } from "./round-helper-fns";
+export { startRoundStage, selectTimeStage, runTimeStage, winRoundStage }
 // SCHEDULE STAGE functions
 
 // assigns players their roles
-function startRoundStage(players) {
+function startRoundStage(roundState) {
 
-    // if validate players errors resolves to assignRoles(players)
-    const playerVal = validatePlayers(players, 'startRoundStage')
+    const { players } = roundState;
+    const { currentStage } = roundState.current.stage
 
-    if(playerVal instanceof error) throw playerVal 
-    if(playerVal === 'unassigned') assignRoles(players);
-    if(playerVal === 'assigned') swapRoles(players);
+    // true if both roles assigned
+    const rolesAssigned = PLAYER_ROLES.every(pR => {
+        players.some(p => p.gameRole === pR)
+    })
+
+    if (rolesAssigned) { assignRoles(players); };
+    if (!rolesAssigned) { swapRoles(players); };
 
     const startRoundResult = playerVal(players)
 
     return startRoundResult;
 }
-    // returns promise resolves to players
+// returns promise resolves to players
 
 // timerPlayer selects time to wait
 function selectTimeStage(players) {
@@ -48,17 +53,5 @@ function runTimeStage({ players, timeLimit } = selectTimeResult) {
 function winRoundStage({ winner, timeLimit, timeReached } = runTimeResult) {
 
 }
-    // return roundResult
+// return roundResult
 
-// --------------------------------------------------
-// HELPER FUNCTIONS
-
-// randomly select a greedy and timer player
-function assignRoles() {
-    const randBool = Math.random() > 0.5
-}
-
-// swap timer and greedy roles
-function swapRoles() {
-    
-}
