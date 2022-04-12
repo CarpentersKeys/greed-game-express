@@ -53,15 +53,8 @@ const ERROR_TYPES = {
         message: 'not enough players!!',
     },
 
-    playersNotAssigned: {
-        message: "rtsh",
+    playerNotAssigned: {
+        message: "one or more players unnassigned outside of setup",
     },
-
-    noTimerPlayer: {
-        message: 'too many players!!',
-    },
-    noGreedyPlayer: {
-        message: 'not enough players!!',
-    }
 }
 Object.freeze(ERROR_TYPES)

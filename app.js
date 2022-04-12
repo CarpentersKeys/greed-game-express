@@ -1,33 +1,90 @@
-import { challengeMaking, challengeResponding } from "./challenge-handling/challenge-proms";
 import { patientReduce } from "./util";
 import { startRoundStage, selectTimeStage, runTimeStage, winRoundStage } from "./round-handling/round-stages-fns";
+import { awaitMakeChallenge, awaitChallengeResponse } from './challenge-handling/challenge-fns';
 
 
-/* game flow
-    -issue challenge (some setup can begin)
-    -asynch selectTime
-    -async race
-    -get results
-*/
+const handleChallenge = (function init() {
 
-const gameEnv = GAME_ENV;
+    const CHALLENGE_SCHEDULE = [
+        awaitMakeChallenge,
+        // the app booted: initialize given client, await challenges
+        //return initial challengeMaking promise(players, numberOfRounds), 
+        awaitChallengeResponse,
+        // someone made a challenge: send the UI to the user who was challenged
+        // returns makeChallengeResult = {challengeResponse (promise)}
+    ]
 
-if(gameEnv = discordjs) {/* build discordAPI event emmitters*/}
-if(gameEnv = web) {/* build webAPI event emmitters*/}
-// etc
+    return function handleChallenge(gameClient) {
 
-    const schedule = [
-        challengeMaking,
-        challengeResponding,
-        // break this up?
+           return patientReduce(CHALLENGE_SCHEDULE, (gameState, currentStageFn) => {
+
+                const newGameState = { ...gameState };
+                newGameState.current.stage = currentStageFn.name;
+
+                const stageResult = currentStageFn(gameState);
+
+                Object.assign(newGameState, stageResult);
+                Object.freeze(newGameState);
+
+                return newGameState;
+            }, {
+                gameClient,
+                current: {
+                    phase: 'challenge',
+                },
+            })
+    }
+}());
+
+const playRounds = (function () {
+
+    const ROUND_SCHEDULE = [
         startRoundStage,
         selectTimeStage,
         runTimeStage,
         winRoundStage
-    ]
+    ];
 
-patientReduce(schedule, (acc, stage, index, schedule) => {
+    function round(result) {
 
-    stage(acc);
+        patientReduce(ROUND_SCHEDULE, (gameState, currentStageFn) => {
 
-}, gameEnv)
+            const previousResult = gameState.roundResults.stageResults.slice(-1);
+            const newResult = currentStageFn(previousResult);
+            newResult.stageName = currentStageFn.name;
+
+            const newGameState = { ...gameState };
+            newGameState.challenge.stageResults.push(newResult);
+            return newGameState;
+
+        }, result)
+    }
+
+    /**
+     * 
+     * @param {object} result from either the initial challenge or the previous round
+     * @return @param {object} gameResult see result-objects.js
+     */
+    return function playRounds(gameResult) {
+
+        const { numberOfRounds } = gameResult;
+        // no rounds have passed yet
+        if (!gameResult.roundResults) {
+            round({
+                ...gameResult,
+
+            })
+        }
+
+        if (numberOfRounds > 0) {
+            return round(result);
+        }
+
+    };
+
+}());
+
+handleChallenge(GAME_CLIENT)
+    .catch((rejection) => {/* handle rejection*/  console.log(rejection) })
+    // the challenge went through
+    .then(playRounds);

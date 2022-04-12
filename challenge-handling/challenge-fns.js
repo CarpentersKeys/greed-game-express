@@ -1,14 +1,45 @@
-// start point of any game, triggered by onChallenge event/command
-function acceptChallenge({ players, numberRounds, gameEnv } = issueChallengeResult) {
+import { challengeMaking, challengeResponding } from "./challenge-proms";
+export { awaitMakeChallenge, awaitChallengeResponse };
+
+
+// the app booted: initialize given client, await challenges
+//return initial challengeMaking promise(players, numberOfRounds), 
+function awaitMakeChallenge({ gameClient }) {
+
+    switch (gameClient) {
+        case 'discordjs':
+            // await import '../discordjs/client';
+            break;
+        case 'web':
+            // await import '../web/client';
+            break;
+    }
+
+    const result = challengeMaking(gameClient);
+    Object.freeze(result);
+
+    // { players, numberOfRounds }
+    return result;
+};
+
+
+// someone made a challenge: send the UI to the user who was challenged
+// returns an object(playesr, numberOfRounds, gameClient, challengeResponding promise) 
+function awaitChallengeResponse({ gameClient, players, numberOfRounds }) {
+
     // find the challengee
     const playerToChallenge = {
         ...players
+            // find the player who isn't the challenger
             .find(p => p.challenger === false)
     }
 
-    // call UI fn
-    sendChallengeMessage(playerToChallenge, numberRounds, gameEnv);
+    // send the challenge message
+    sendChallengeMessage(playerToChallenge, numberOfRounds, gameClient);
 
-    return deepClone(flattenToObj(arguments[0]), acceptChallengePromise())
-}
-// returns promise resolves to challengeResult
+    const result = { challengeResponse: challengeResponding(), }
+    Object.freeze(result);
+
+    // boolean
+    return result;
+};

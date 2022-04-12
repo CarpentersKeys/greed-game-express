@@ -1,0 +1,88 @@
+todo!
+
+    app.js 
+        figure out how to loop round stages in patientReducer without rechallenging
+        just chain two patientReducers?
+
+    util
+        should I make a deep promise.all that can rebuild the object? or just stick with recursion for depth?
+
+    valiudation fn:
+        refactor role validation
+    
+    gamefunction: 
+        game result reducde
+        startstage
+
+    test:
+        patientReduce, does it properly handle thenables in the return of the acc or on the arr
+
+    ui
+        prepare fs for ui clients (rename app.js to game.js?)
+        setup appjs for discord
+        build slash commands
+            challenge
+            quit game
+        build messages
+        build event listeners
+
+questions: 
+    FP allow global constants? 
+        NO
+    how to handle exceptions with FP
+    do I need to pass UI functions into async handlers to maintain promiseFirst pattern
+    at what point do I want to filter the player objects and what do I need from them?
+    can I reset the index of a reducer?
+
+async needs:
+    issue challenge
+    accept challenge
+    waiting for selectTime
+    waiting for race
+
+game flow
+    -issue challenge (some setup can begin)
+    -async accept challenge
+    -finish setup
+    -asynch selectTime
+    -async race
+    -get results
+
+
+patterns used:
+    for functions that require UI and async interactions: promiseFirst
+        intialize promise/event handlers that await the interactions
+        send UI messages or whatever
+    function params:
+        receive a functionNameResult object desctructure in the params
+        if the full object is needed to be passed into a subfn use arguments[0]
+
+refactor ideas:
+    get all stages as an array of function
+    call playRound recursively on a patientReducer implementation 
+
+theme:
+    prisoners dilemma
+       at the end both players can choose if they want to play again, if they both choose to play again another round is started, if one choses to and the other doesn't, that player sthsthsth
+
+client responsibilities:
+    send UI and messages
+    receieve responses
+        players list, which players is the challenger
+    emit events with response info
+
+server (it's all server baby) responsibilities:
+    recieve client events
+    game logic
+
+    /**questions:
+ * when do I want to resolve promises?
+ *      if I resolve at the beginning, I won't have time to run my cb logic
+ *      resovle at the end means promises on the incoming arr would have to be resolved in the callback somehow 
+ * is there a way to replace promises with their resolved values when it happens? custom promise.all?
+ */
+
+/**
+ *  in my special case I need to pass functions that will result in objects that contain promises
+ *  the functions are invoked inside the cb, their resulting objects will be referenced on the accumulator
+ */
