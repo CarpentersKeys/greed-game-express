@@ -4,7 +4,7 @@ import { patientReduce } from './util/patientReduce';
 function startRoundStage(args) {
     return { sRS: Promise.resolve('1')};
 };
-function selectTimeStage(args) {
+function setTimerStage(args) {
     return { sTS: Promise.resolve('2')};
 };
 function runTimeStage(args) {
@@ -20,7 +20,7 @@ const playRounds = (function init() {
 
     const ROUND_SCHEDULE = [
         startRoundStage,
-        selectTimeStage,
+        setTimerStage,
         runTimeStage,
         winRoundStage
     ];

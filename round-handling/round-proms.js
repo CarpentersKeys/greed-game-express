@@ -1,19 +1,23 @@
-export { challengeMaking, challengeResponding, timerRunning }
+export { timerSetting, timerRunning }
 import events from 'events';
 // -----------------------------------------------------------------------
 // functions that invoke new Promise() and handles the arguments they need
 
-};
+function timerSetting({ }) {
 
-function timerRunning({ timeLimit, players } = selectTimeResult) {
+}
 
+// probably doing too much here
+function timerRunning({ timerSet, players }) {
+
+    // wrong
     const { timerPlayer, greedyPlayer } = players;
 
     return new Promise((resolve, reject,) => {
         const startTime = new Date().getTime();
 
         const timer = setTimeout(resolve({
-            timeReached: timeLimit,
+            timeReached: timerSet,
             winner: timerPlayer,
             timeLimit,
         }), timeLimit);

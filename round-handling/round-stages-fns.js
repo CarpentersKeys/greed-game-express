@@ -1,11 +1,10 @@
 import { assignRoles } from "./round-helper-fns";
-export { startRoundStage, selectTimeStage, runTimeStage, winRoundStage }
+import { timerRunning } from "./round-proms";
+export { startRoundStage, setTimerStage, runTimeStage, winRoundStage }
 // SCHEDULE STAGE functions
 
 // assigns players their roles
-function startRoundStage(roundState) {
-
-    const { players } = roundState;
+function startRoundStage({ players }) {
 
     // assigns roles randomly or swaps existing roles
     const newPlayers = assignRoles(players);
@@ -20,24 +19,24 @@ function startRoundStage(roundState) {
 // returns promise resolves to players
 
 // timerPlayer selects time to wait
-function selectTimeStage(players) {
+function setTimerStage({ players }) {
 
-    const result = { timeSelected: selectTimePromise()}
+    const result = { timerSet: timerSetting() }
 
     // send UI messages
-    sendSelectTimeMessage(players.timerPlayer);
+    sendSetTimerMessage(players.timerPlayer);
     sendWaitMessage(players.greedyPlayer);
 
-    return selectTimeResult;
+    return result;
 
 }
 // return promise which resolves to selectTimeResult
 
 // will the timer run down or greedy player click the button first?
-function runTimeStage({ players, timeLimit } = selectTimeResult) {
+function runTimeStage({ players, timerSet }) {
 
     // resolve to either greedyOnClick() or setTimeout()
-    const runTimeResult = runTimePromise(arguments[0]) // <---- this passes selectTimeResult
+    const timeRan = timerRunning(timerSet) // <---- this passes selectTimeResult
 
     // send UI messages
     sendTimerMessage(players.timerPlayer);
