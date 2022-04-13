@@ -1,8 +1,5 @@
-export { acceptChallenge, earlyGameEnding, playGame }
-import events from 'events';
+export { earlyGameEnding }
 
-// possibl exit points
-// -----------------------------------------------------------
 function earlyGameEnding() {
     /** early end conditions
      *  -player disco
@@ -22,10 +19,3 @@ function earlyGameEnding() {
     });
 }
 
-function endGame({ players, numberRounds } = challengeResult) {
-
-    const gameResult = getGameResult;
-
-    return gameResult
-}
-    //----------------------------------------------------------------------

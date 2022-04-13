@@ -1,6 +1,6 @@
 import { assignRoles } from "./round-helper-fns";
 import { timerRunning } from "./round-proms";
-export { startRoundStage, setTimerStage, runTimeStage, winRoundStage }
+export { startRoundStage, setTimerStage, runTimerStage, winRoundStage }
 // SCHEDULE STAGE functions
 
 // assigns players their roles
@@ -33,7 +33,7 @@ function setTimerStage({ players }) {
 // return promise which resolves to selectTimeResult
 
 // will the timer run down or greedy player click the button first?
-function runTimeStage({ players, timerSet }) {
+function runTimerStage({ players, timerSet }) {
 
     // resolve to either greedyOnClick() or setTimeout()
     const timeRan = timerRunning(timerSet) // <---- this passes selectTimeResult
