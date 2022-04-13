@@ -1,53 +1,69 @@
-import { assignRoles } from "./round-helper-fns";
+import { assignRoles, sortByRole } from "./round-helper-fns";
 import { timerRunning } from "./round-proms";
-export { startRoundStage, setTimerStage, runTimerStage, winRoundStage }
+import { deepClone } from '../util/deepClone'
+
 // SCHEDULE STAGE functions
+export { startRoundStage, setTimerStage, runTimerStage, winRoundStage }
 
-// assigns players their roles
-function startRoundStage({ players }) {
+// assigns roles randomly or swaps existing roles
+function startRoundStage(roundState) {
+    const GAME_ROLES = ['greedyPlayer', 'timerPlayer'];
+    const players = Object.values(roundState.players);
+    const bool = !roundState.players.hasOwn('greedyPlayer') || Math.random() > 0.5;
 
-    // assigns roles randomly or swaps existing roles
-    const newPlayers = assignRoles(players);
+    const result = GAME_ROLES.reduce((newPlayers, role) => {
+
+        newPlayers[role] = 
+
+    }, { players: {} });
 
 
-    const result = { players: newPlayers };
-    Object.freeze(result);
-
-    // { players }
     return result;
 }
 // returns promise resolves to players
 
 // timerPlayer selects time to wait
-function setTimerStage({ players }) {
+function setTimerStage(roundState) {
+    const [timerPlayer, greedyPlayer] = sortByRole(roundState.players);
 
     const result = { timerSet: timerSetting() }
 
     // send UI messages
-    sendSetTimerMessage(players.timerPlayer);
-    sendWaitMessage(players.greedyPlayer);
+    sendSetTimerMessage(timerPlayer);
+    sendWaitMessage(greedyPlayer);
 
+    // { timerSet: time in ms, players }
     return result;
 
 }
 // return promise which resolves to selectTimeResult
 
 // will the timer run down or greedy player click the button first?
-function runTimerStage({ players, timerSet }) {
+function runTimerStage(roundState) {
+    const [timerPlayer, greedyPlayer] = sortByRole(roundState.players);
 
-    // resolve to either greedyOnClick() or setTimeout()
-    const timeRan = timerRunning(timerSet) // <---- this passes selectTimeResult
+    const result = { timerRan: timerRunning(timerSet) }
 
     // send UI messages
-    sendTimerMessage(players.timerPlayer);
-    sendGreedyClickMessage(players.greedyPlayer);
+    sendTimerMessage(timerPlayer);
+    sendGreedyClickMessage(greedyPlayer);
 
-    return runTimeResult; // { winner, timeLimit, timeReached }
+    // { timeRan: time in ms }
+    return result;
 }
 // return promise which resolves to runTimeResult
 
-function winRoundStage({ winner, timeLimit, timeReached } = runTimeResult) {
+function winRoundStage(roundState) {
+    const newRoundState = deepClone(roundState);
+    const { timerRan, timerSet, players } = newRoundState;
+    const [timerPlayer, greedyPlayer] = sortByRole(players);
 
+    const result = {
+        score: timerRan / timerSet * timerSet,
+        winner: timerRan === timerSet && timerPlayer || greedyPlayer,
+        loser: timerRan === timerSet && greedyPlayer || timerPlayer,
+    };
+    return result;
 }
 // return roundResult
 

@@ -3,7 +3,14 @@ import events from 'events';
 // -----------------------------------------------------------------------
 // functions that invoke new Promise() and handles the arguments they need
 
-function timerSetting({ }) {
+function timerSetting({ players }) {
+
+    const [timerPlayer, greedyPlayer] =
+        players.sort((a, b) => (a.gameRole === 'greedyPlayer' - b.gameRole === 'greedyPlayer') - 0.5)
+
+    return new Promise(resolve => {
+
+    })
 
 }
 

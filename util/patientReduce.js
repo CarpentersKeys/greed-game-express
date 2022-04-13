@@ -21,6 +21,7 @@ function patientReduce(array, callback, initialValue) {
     * @returns the final return value of callback
     */
 
+
     return new Promise((resolve, reject)  => {
 
         (function reduceRecurcsively(arr = array, cb = callback, acc = initialValue, i = 0) {
@@ -34,6 +35,7 @@ function patientReduce(array, callback, initialValue) {
             // just return the first element as the accumulator if no initial value is given
             if (acc === undefined && i === 0) { return reduceRecurcsively(arr, cb, elem, i + 1); }
 
+            // FUTURE: convert these lambdas to named fns
             return awaitDeepAny(elem)
                 .then(elem => { return cb(acc, elem, i, arr); })
                 .then(awaitDeepAny)

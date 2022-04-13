@@ -27,6 +27,7 @@ todo!
         build event listeners
 
 questions: 
+    how to convert lambdas to named functions in a recursive fn that needs args that change each call?
     FP allow global constants? 
         NO
     how to handle exceptions with FP
@@ -62,6 +63,7 @@ refactor ideas:
     call playRound recursively on a patientReducer implementation 
 
 theme:
+    patient prisoner?
     prisoners dilemma
        at the end both players can choose if they want to play again, if they both choose to play again another round is started, if one choses to and the other doesn't, that player sthsthsth
 

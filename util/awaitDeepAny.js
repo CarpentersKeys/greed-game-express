@@ -2,6 +2,7 @@ import hasChildren from "./hasChildren";
 import computeMemberAccessString from './member-access/computeMemberAccessString';
 import setByAccessString from './member-access/setByAccessString'
 import accessByString from './member-access/accessByString'
+import deepClone from "./deepClone";
 
 export default function awaitDeepAny(dataStructure) {
 /**
@@ -17,7 +18,7 @@ export default function awaitDeepAny(dataStructure) {
     }
 
 
-    const newStrct = JSON.parse(JSON.stringify(dataStructure));
+    const newStrct = deepClone(dataStructure);
     const initialItemkeys = getItemKeys(dataStructure);
     const previousMemberAccessStrings = new Set();
 
