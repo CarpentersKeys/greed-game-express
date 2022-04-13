@@ -1,7 +1,7 @@
 export {ERROR_TYPES, PLAYERS_TEMPLATE, PLAYER_ROLES, ROUND_RESULT_TEMPLATE, GAME_RESULT_TEMPLATE,}
 
 const PLAYER_ROLES = ['timerPlayer', 'greedyPlayer']
-Object.freeze(PLAYER_ROLES)
+// Object.freeze(PLAYER_ROLES)
 
 const PLAYERS_TEMPLATE = [
     // player object identifiers are 'player' by default and reassigned in the first round

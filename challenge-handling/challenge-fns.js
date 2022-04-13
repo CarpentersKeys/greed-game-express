@@ -15,7 +15,7 @@ function awaitMakeChallenge({ gameClient }) {
             break;
     }
 
-    const result = challengeMaking(gameClient);
+    const result = { challengeMade: challengeMaking(gameClient) };
     Object.freeze(result);
 
     // { players, numberOfRounds }

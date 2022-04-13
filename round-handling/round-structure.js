@@ -1,23 +1,7 @@
-import { patientReduce } from './util/patientReduce';
+import { startRoundStage, setTimerStage, runTimerStage, winRoundStage } from "./round-stages-fns";
+import { patientReduce } from '../util/patientReduce';
 
-
-function startRoundStage(args) {
-    return {
-        sRS: Promise.resolve('1'),
-        sRS2: 'trwo',
-    };
-};
-function setTimerStage(args) {
-    return { sTS: Promise.resolve('2') };
-};
-function runTimerStage(args) {
-    return { rTS: Promise.resolve('3') };
-};
-function winRoundStage(args) {
-    return { wRS: Promise.resolve('4') };
-};
-
-
+export { playRounds };
 
 const playRounds = (function init() {
 
@@ -107,16 +91,32 @@ const playRounds = (function init() {
 
 }());
 
-const gameStateDummy = {
-    gameClient: 'react',
-    players: ['player1', 'player2'],
-    numberOfRounds: 3,
-    challengeResponse: true,
-    current: {
-        phase: 'challenge',
-        stage: 'awaitChallengeResponse',
-    }
-}
-const result = await playRounds(gameStateDummy);
+// function startRoundStage(args) {
+//     return {
+//         sRS: Promise.resolve('1'),
+//         sRS2: 'trwo',
+//     };
+// };
+// function setTimerStage(args) {
+//     return { sTS: Promise.resolve('2') };
+// };
+// function runTimerStage(args) {
+//     return { rTS: Promise.resolve('3') };
+// };
+// function winRoundStage(args) {
+//     return { wRS: Promise.resolve('4') };
+// };
 
-result
+// const gameStateDummy = {
+//     gameClient: 'react',
+//     players: ['player1', 'player2'],
+//     numberOfRounds: 3,
+//     challengeResponse: true,
+//     current: {
+//         phase: 'challenge',
+//         stage: 'awaitChallengeResponse',
+//     }
+// }
+// const result = await playRounds(gameStateDummy);
+
+// result

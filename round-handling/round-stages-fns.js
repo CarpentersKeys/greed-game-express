@@ -1,46 +1,42 @@
-import { assignRoles, swapRoles } from "./round-helper-fns";
-export { startRoundStage, selectTimeStage, runTimeStage, winRoundStage }
+import { assignRoles } from "./round-helper-fns";
+import { timerRunning } from "./round-proms";
+export { startRoundStage, setTimerStage, runTimerStage, winRoundStage }
 // SCHEDULE STAGE functions
 
 // assigns players their roles
-function startRoundStage(roundState) {
+function startRoundStage({ players }) {
 
-    const { players } = roundState;
-    const { currentStage } = roundState.current.stage
+    // assigns roles randomly or swaps existing roles
+    const newPlayers = assignRoles(players);
 
-    // true if both roles assigned
-    const rolesAssigned = PLAYER_ROLES.every(pR => {
-        players.some(p => p.gameRole === pR)
-    })
 
-    if (rolesAssigned) { assignRoles(players); };
-    if (!rolesAssigned) { swapRoles(players); };
+    const result = { players: newPlayers };
+    Object.freeze(result);
 
-    const startRoundResult = playerVal(players)
-
-    return startRoundResult;
+    // { players }
+    return result;
 }
 // returns promise resolves to players
 
 // timerPlayer selects time to wait
-function selectTimeStage(players) {
+function setTimerStage({ players }) {
 
-    const selectTimeResult = selectTimePromise()
+    const result = { timerSet: timerSetting() }
 
     // send UI messages
-    sendSelectTimeMessage(players.timerPlayer);
+    sendSetTimerMessage(players.timerPlayer);
     sendWaitMessage(players.greedyPlayer);
 
-    return selectTimeResult;
+    return result;
 
 }
 // return promise which resolves to selectTimeResult
 
 // will the timer run down or greedy player click the button first?
-function runTimeStage({ players, timeLimit } = selectTimeResult) {
+function runTimerStage({ players, timerSet }) {
 
     // resolve to either greedyOnClick() or setTimeout()
-    const runTimeResult = runTimePromise(arguments[0]) // <---- this passes selectTimeResult
+    const timeRan = timerRunning(timerSet) // <---- this passes selectTimeResult
 
     // send UI messages
     sendTimerMessage(players.timerPlayer);
