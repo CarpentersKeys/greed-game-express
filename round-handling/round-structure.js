@@ -21,6 +21,9 @@ const playRounds = (function init() {
         // returns the round result object to be merged into the gameState
     ];
 
+    // roles in closure for startRoundStage
+    const GAME_ROLES = ['greedyPlayer', 'timerPlayer']; 
+
     // rounds resolve the result of each ROUND_SCHEDULE stage function sequentially
     // schedule procedes patiently waiting for each async operation
     // results of each stage function are merged into the roundState object
@@ -34,7 +37,7 @@ const playRounds = (function init() {
             const { gameClient } = newGameState;
             // last rounds' players
             const players = { ...newGameState?.roundResults?.slice(-1)?.players }
-            // or gameState players
+                // or gameState players
                 ?? { ...newGameState.players };
 
             // play a round, add results to state

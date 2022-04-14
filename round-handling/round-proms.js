@@ -3,40 +3,28 @@ import events from 'events';
 // -----------------------------------------------------------------------
 // functions that invoke new Promise() and handles the arguments they need
 
-function timerSetting({ players }) {
-
-    const [timerPlayer, greedyPlayer] =
-        players.sort((a, b) => (a.gameRole === 'greedyPlayer' - b.gameRole === 'greedyPlayer') - 0.5)
+function timerSetting(players) {
+    const { timerPlayer, greedyPlayer } = players;
 
     return new Promise(resolve => {
+        events.EventEmitter.once('onTimerSet', resolve)
 
     })
 
 }
 
 // probably doing too much here
-function timerRunning({ timerSet, players }) {
+function timerRunning(timerSet) {
 
-    // wrong
-    const { timerPlayer, greedyPlayer } = players;
-
-    return new Promise((resolve, reject,) => {
+    return new Promise(resolve => {
         const startTime = new Date().getTime();
 
-        const timer = setTimeout(resolve({
-            timeReached: timerSet,
-            winner: timerPlayer,
-            timeLimit,
-        }), timeLimit);
+        const timer = setTimeout(resolve, timerSet, timerSet);
 
-        events.EventEmitter.once('greedyClick', () => {
+        events.EventEmitter.once('onGreedyClick', () => {
             clearTimeout(timer);
-            const timeReached = new Date().getTime() - startTime;
-            resolve({
-                timeReached,
-                winner: greedyPlayer,
-                timeLimit,
-            });
+            const timeRan = new Date().getTime() - startTime;
+            resolve(timeRan);
         });
     });
 };

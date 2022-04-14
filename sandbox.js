@@ -1,16 +1,6 @@
-import deepClone from "./util/deepClone";
+        const obj = {players:  {
+            g: {name: 1},
+            t: {name: 2}
+        }}
 
-const players = {
-   greed: { name: 'Tim', gameRole: 'greedyPlayer' },
-    time: { name: 'Jom', gameRole: 'timerPlayer' },
-
-}
-
-players.greedyPlayer = players.greed;
-players.greed
-players.greedyPlayer
-deepClone(players);
-Object.assign(players, {greed:'hat'})
-players.greed
-players
-players.greedyPlayer
+        Object.values(obj.players)

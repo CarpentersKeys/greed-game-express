@@ -1,32 +1,35 @@
-import { assignRoles, sortByRole } from "./round-helper-fns";
-import { timerRunning } from "./round-proms";
-import { deepClone } from '../util/deepClone'
+import { timerSetting, timerRunning } from "./round-proms";
 
 // SCHEDULE STAGE functions
 export { startRoundStage, setTimerStage, runTimerStage, winRoundStage }
 
 // assigns roles randomly or swaps existing roles
 function startRoundStage(roundState) {
-    const GAME_ROLES = ['greedyPlayer', 'timerPlayer'];
-    const players = Object.values(roundState.players);
-    const bool = !roundState.players.hasOwn('greedyPlayer') || Math.random() > 0.5;
+    let rand;
 
-    const result = GAME_ROLES.reduce((newPlayers, role) => {
+    const result = { players: {} };
+    // let rand = Math.random() > 0.5;
 
-        newPlayers[role] = 
+    for (const player in roundState.players) {
+        if (player === 'greedyPlayer') { result.players.timerPlayer = roundState.players[player]; };
+        if (player === 'timerPlayer') { result.players.greedyPlayer = roundState.players[player]; };
+        if (!GAME_ROLES.includes(player)) {
+            rand = (rand + 1) || 0 + Math.random() > 0.5;
+            rand % 2
+            result.players[GAME_ROLES[(rand % 2)]] = roundState.players[player];
+        }
+    }
 
-    }, { players: {} });
-
-
+    // returns {players: greedyPlayer: {...}, timerPlayer: {...}}
     return result;
 }
-// returns promise resolves to players
 
 // timerPlayer selects time to wait
 function setTimerStage(roundState) {
-    const [timerPlayer, greedyPlayer] = sortByRole(roundState.players);
+    const { players } = roundState;
+    const { timerPlayer, greedyPlayer } = players;
 
-    const result = { timerSet: timerSetting() }
+    const result = { timerSet: timerSetting(players) }
 
     // send UI messages
     sendSetTimerMessage(timerPlayer);
@@ -36,11 +39,11 @@ function setTimerStage(roundState) {
     return result;
 
 }
-// return promise which resolves to selectTimeResult
 
 // will the timer run down or greedy player click the button first?
 function runTimerStage(roundState) {
-    const [timerPlayer, greedyPlayer] = sortByRole(roundState.players);
+    const { timerSet, players } = roundState;
+    const { timerPlayer, greedyPlayer } = players;
 
     const result = { timerRan: timerRunning(timerSet) }
 
@@ -51,19 +54,17 @@ function runTimerStage(roundState) {
     // { timeRan: time in ms }
     return result;
 }
-// return promise which resolves to runTimeResult
 
 function winRoundStage(roundState) {
-    const newRoundState = deepClone(roundState);
-    const { timerRan, timerSet, players } = newRoundState;
-    const [timerPlayer, greedyPlayer] = sortByRole(players);
+    const { timerRan, timerSet, players } = roundState;
+    const { timerPlayer, greedyPlayer } = players;
 
     const result = {
         score: timerRan / timerSet * timerSet,
         winner: timerRan === timerSet && timerPlayer || greedyPlayer,
         loser: timerRan === timerSet && greedyPlayer || timerPlayer,
     };
+
+    // { score, winner, loser }
     return result;
 }
-// return roundResult
-

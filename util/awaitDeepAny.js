@@ -5,14 +5,14 @@ import accessByString from './member-access/accessByString'
 import deepClone from "./deepClone";
 
 export default function awaitDeepAny(dataStructure) {
-/**
- * @param {*} dataStructure any primitive, object or array, with any number of nested objects or arrays
- * @returns {promise} that resolves with a datastructure clone of the param with value of all thenables awaited
- */    // new data structure with the same shape as dataStructure
+    /**
+     * @param {*} dataStructure any primitive, object or array, with any number of nested objects or arrays
+     * @returns {promise} that resolves with a datastructure clone of the param with value of all thenables awaited
+     */    // new data structure with the same shape as dataStructure
 
-    if(typeof(dataStructure) !== 'object') {
-        if(dataStructure.then) { 
-            return dataStructure.then(data => { return data;})
+    if (typeof (dataStructure) !== 'object') {
+        if (dataStructure.then) {
+            return dataStructure.then(data => { return Object.freeze(data); })
         }
         return Promise.resolve(dataStructure);
     }
@@ -79,7 +79,7 @@ export default function awaitDeepAny(dataStructure) {
                 // base case, no further layers to traverse, resolve the promise
                 if (layerAccess === [] || layerAccess.length < 1) {
 
-                    return resolve(newStrct);
+                    return resolve(Object.freeze(newStrct));
                 }
                 // call into the next layer
                 const nextLayer = accessByString(dataStructure, layerAccess[0])
@@ -99,7 +99,7 @@ export default function awaitDeepAny(dataStructure) {
                     return recur([layer, index + 1, layerAccess, itemKeys])
                 };
 
-                if (data.then || typeof(data) === 'function') {
+                if (data.then || typeof (data) === 'function') {
                     return replaceAwaitedPassParams(layer, index, layerAccess, itemKeys)
                         .then(recur);
                 };
