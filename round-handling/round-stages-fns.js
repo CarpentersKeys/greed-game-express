@@ -1,53 +1,70 @@
-import { assignRoles } from "./round-helper-fns";
-import { timerRunning } from "./round-proms";
-export { startRoundStage, setTimerStage, runTimerStage, winRoundStage }
+import { timerSetting, timerRunning } from "./round-proms";
+
 // SCHEDULE STAGE functions
+export { startRoundStage, setTimerStage, runTimerStage, winRoundStage }
 
-// assigns players their roles
-function startRoundStage({ players }) {
+// assigns roles randomly or swaps existing roles
+function startRoundStage(roundState) {
+    let rand;
 
-    // assigns roles randomly or swaps existing roles
-    const newPlayers = assignRoles(players);
+    const result = { players: {} };
+    // let rand = Math.random() > 0.5;
 
+    for (const player in roundState.players) {
+        if (player === 'greedyPlayer') { result.players.timerPlayer = roundState.players[player]; };
+        if (player === 'timerPlayer') { result.players.greedyPlayer = roundState.players[player]; };
+        if (!GAME_ROLES.includes(player)) {
+            rand = (rand + 1) || 0 + Math.random() > 0.5;
+            rand % 2
+            result.players[GAME_ROLES[(rand % 2)]] = roundState.players[player];
+        }
+    }
 
-    const result = { players: newPlayers };
-    Object.freeze(result);
-
-    // { players }
+    // returns {players: greedyPlayer: {...}, timerPlayer: {...}}
     return result;
 }
-// returns promise resolves to players
 
 // timerPlayer selects time to wait
-function setTimerStage({ players }) {
+function setTimerStage(roundState) {
+    const { players } = roundState;
+    const { timerPlayer, greedyPlayer } = players;
 
-    const result = { timerSet: timerSetting() }
+    const result = { timerSet: timerSetting(players) }
 
     // send UI messages
-    sendSetTimerMessage(players.timerPlayer);
-    sendWaitMessage(players.greedyPlayer);
+    sendSetTimerMessage(timerPlayer);
+    sendWaitMessage(greedyPlayer);
 
+    // { timerSet: time in ms, players }
     return result;
 
 }
-// return promise which resolves to selectTimeResult
 
 // will the timer run down or greedy player click the button first?
-function runTimerStage({ players, timerSet }) {
+function runTimerStage(roundState) {
+    const { timerSet, players } = roundState;
+    const { timerPlayer, greedyPlayer } = players;
 
-    // resolve to either greedyOnClick() or setTimeout()
-    const timeRan = timerRunning(timerSet) // <---- this passes selectTimeResult
+    const result = { timerRan: timerRunning(timerSet) }
 
     // send UI messages
-    sendTimerMessage(players.timerPlayer);
-    sendGreedyClickMessage(players.greedyPlayer);
+    sendTimerMessage(timerPlayer);
+    sendGreedyClickMessage(greedyPlayer);
 
-    return runTimeResult; // { winner, timeLimit, timeReached }
+    // { timeRan: time in ms }
+    return result;
 }
-// return promise which resolves to runTimeResult
 
-function winRoundStage({ winner, timeLimit, timeReached } = runTimeResult) {
+function winRoundStage(roundState) {
+    const { timerRan, timerSet, players } = roundState;
+    const { timerPlayer, greedyPlayer } = players;
 
+    const result = {
+        score: timerRan / timerSet * timerSet,
+        winner: timerRan === timerSet && timerPlayer || greedyPlayer,
+        loser: timerRan === timerSet && greedyPlayer || timerPlayer,
+    };
+
+    // { score, winner, loser }
+    return result;
 }
-// return roundResult
-

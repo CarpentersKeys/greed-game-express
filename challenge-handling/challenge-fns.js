@@ -29,7 +29,7 @@ function awaitChallengeResponse({ gameClient, players, numberOfRounds }) {
 
     // find the challengee
     const playerToChallenge = {
-        ...players
+        ...Object.values(players)
             // find the player who isn't the challenger
             .find(p => p.challenger === false)
     }
