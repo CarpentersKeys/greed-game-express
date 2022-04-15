@@ -23,7 +23,7 @@ function challengeResponding({ gameClient }) {
 
         gameClient.addEventListener('onAccept', resolve(true));
 
-        // reject after 20s
+        // reject after 20s maybe hanlde this on frontend
         setTimeout(() => {
             reject('challenge timed out');
         }, 1000 * 20);

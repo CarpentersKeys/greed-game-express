@@ -22,7 +22,7 @@ const playRounds = (function init() {
     ];
 
     // roles in closure for startRoundStage
-    const GAME_ROLES = ['greedyPlayer', 'timerPlayer']; 
+    const GAME_ROLES = ['greedyPlayer', 'timerPlayer'];
 
     // rounds resolve the result of each ROUND_SCHEDULE stage function sequentially
     // schedule procedes patiently waiting for each async operation
@@ -44,6 +44,7 @@ const playRounds = (function init() {
             patientReduce(ROUND_SCHEDULE, (roundState, currentStageFn) => {
 
                 newGameState.current.stage = currentStageFn.name;
+                roundState.current.stage = currentStageFn.name;
 
                 // errors will return a stageResult with an error prop
                 const stageResult = currentStageFn(roundState); //
@@ -52,9 +53,9 @@ const playRounds = (function init() {
                 Object.assign(roundState, stageResult);
                 Object.freeze(roundState);
 
-                // check for errors, reject the promise
-                if (roundState.error) { return reject(roundState); };
-                // probably wrong 
+                // check for errors, 
+                if (roundState.error) { throw roundState; };
+                // throw will cause patientReduce to reject it's promise with roundState
 
                 return roundState;
             }, {
@@ -81,20 +82,20 @@ const playRounds = (function init() {
      */
     return function playRounds(gameState) {
 
-        // round vars and inc the current round
-        const { numberOfRounds } = gameState;
-        let currentRound = gameState.current.round ?? 0;
-        currentRound += 1;
-        // base case: all rounds finished
-        if (currentRound > numberOfRounds) { return gameState; };
-
-        // shallow clone the state
-        const newGameState = { ...gameState };
+        const newGameState = deepClone(gameState);
         // first round init
         if (currentRound === 1) {
             newGameState.current.phase = 'game';
             newGameState.roundResults = [];
         };
+
+        // round vars and inc the current round
+        const { numberOfRounds } = newGameState;
+        let currentRound = newGameState.current.round ?? 0;
+        currentRound += 1;
+        // base case: all rounds finished
+        if (currentRound > numberOfRounds) { return newGameState; };
+
         // set the current round
         newGameState.current.round = currentRound;
         Object.freeze(newGameState);
