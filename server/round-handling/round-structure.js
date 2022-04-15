@@ -1,6 +1,6 @@
 import { startRoundStage, setTimerStage, runTimerStage, winRoundStage } from "./round-stages-fns";
-import { patientReduce } from '../util/patientReduce';
-import deepClone from "../util/deepClone";
+import { patientReduce } from '../server/util/patientReduce';
+import deepClone from "../server/util/deepClone";
 
 export { playRounds };
 
