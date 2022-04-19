@@ -4,7 +4,6 @@ import jwt from "jsonwebtoken";
 const authRouter = Router();
 
 authRouter.post('/', (req, res) => {
-    console.log(req.body.name);
     const name = req.body.name;
 
     const tempToken = jwt.sign({

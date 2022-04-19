@@ -1,43 +1,27 @@
 import { Router } from "express";
-import EventEmmiter, { once } from 'events';
+import emitMatch from "../events-handling/emitMatch.js";
+import awaitMatching from "../events-handling/awaitMatching.js";
+import { em } from "../index.mjs";
 import auth from "../middleware/auth.js";
 
 const gameRouter = Router();
 
-const em = new EventEmmiter()
+gameRouter.post('/match', auth, (req, res) => {
+    const anymatch = em.listenerCount('match') > 0;
+    console.log(em.listenerCount('match'));
 
-const makeMatchEvent = (player1, numberOfRounds) => {
-    return (player2, numberOfRounds2) => {
-        // if (player1 === player2) { return response.status(500).send({ errorMessage: 'weird, you can\'t player yourself' }); }
-        if (numberOfRounds !== numberOfRounds2) { return }
-
-        // return response.send({ player1, player2, numberOfRounds });
-    }
-}
-
-gameRouter.post('/match', auth, (req, res,) => {
-
-
-    em.on('error', (err) => console.log('error event:', err))
-
-    const { player, numberOfRounds } = (req.body);
-
-    const anymatch = em.listeners('match').length > 0;
-
+    // someone is waiting for a game
     if (anymatch) {
-        em.emit('match', player, numberOfRounds);
-        return res.send({ matchFound: true, player, numberOfRounds });
+        const matchId = emitMatch(req)
+        return res.send({ matchFound: true, matchId });
     };
 
-    const timeout = setTimeout(() => {
-        em.removeListener('match', thisMatch);
-        return res.status(500).send({ errorMessage: 'No matches avail' });
-    }, 1000);
-
-    let thisMatch;
-    thisMatch = makeMatchEvent(player, numberOfRounds);
-    // once('match', thisMatch)
-    // .then(sth => console.log(sth));
+    // otherwise wait for someone to show up
+    awaitMatching(req)
+        .then(matchObj => res.status(200).send(matchObj))
+        .catch(rejection => {
+            console.log(`matching rejected because it ${rejection.reason}`);
+            res.status(500).send(rejection);
+        })
 })
-
-export default gameRouter ;
+export default gameRouter;

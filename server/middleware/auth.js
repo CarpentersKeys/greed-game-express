@@ -5,7 +5,7 @@ export default function auth(req, res, next) {
         const decoded = jwt.verify(req.cookies.tempToken, process.env.JWT_SECRET);
         req.name = decoded.name;
         next();
-    } catch (error) {
-        console.log('bad auth! \nerror', error)
+    } catch {
+        res.status(500).send('bad auth!');
     }
 };
