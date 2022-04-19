@@ -10,7 +10,6 @@ authRouter.post('/', (req, res) => {
         name
     }, process.env.JWT_SECRET)
 
-    console.log('jwt.sign:', tempToken);
     res.cookie('tempToken', tempToken, {
         httpOnly: true,
         maxAge: 1000* 60 * 10
