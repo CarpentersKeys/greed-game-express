@@ -13,7 +13,7 @@ authRouter.post('/', (req, res) => {
     res.cookie('tempToken', tempToken, {
         httpOnly: true,
         maxAge: 1000* 60 * 10
-    }).send();
+    }).send({name});
 })
 
 export default authRouter;
