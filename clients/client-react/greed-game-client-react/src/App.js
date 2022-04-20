@@ -18,3 +18,8 @@ function App() {
 }
 
 export default App;
+
+// main page just shows the form where you enter name
+// submit makes a request to the sever which responds when it finds a match
+// that response triggers another request to the server to start the game
+// that response triggers the game ui
