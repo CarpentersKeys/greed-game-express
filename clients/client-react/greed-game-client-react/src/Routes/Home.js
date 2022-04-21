@@ -1,49 +1,40 @@
-import { useEffect, useState } from "react";
+import { useContext, useState } from "react";
+import { MatchContext } from "../context/MatchContext";
+import { UserContext } from "../context/UserContext";
+import useRedirAfterResponse from "../hooks/useRedirAfterResponse";
+import useTempRegister from "../hooks/useTempRegister";
 
 function Home() {
     const [nameText, setNameText] = useState('');
-    const [name, setName] = useState('');
-    useEffect(() => {
+    const [submitText, setSubmitText] = useState('');
 
-    }, [tempRegister]);
+    const [loading, user] = useTempRegister(submitText);
+
+    const { matchDetails } = useContext(UserContext);
+    const {user} = useContext(MatchContext);
+
+    console.log('start', user, loading, submitText, nameText)
+
+    useRedirAfterResponse(user);
 
     function textChange(e) {
         setNameText(e.target.value);
     }
 
-    function tempRegister(e) {
+    function handleSubmit(e) {
         e.preventDefault();
-
-        const request = new Request('http://localhost:5001/auth',
-            {
-                method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({send: 'hekp!'}),
-            }
-        );
-
-        fetch(request)
-            .then(res => {
-                console.log(res.status)
-                if (!res.ok) { throw new Error(`http error! Status: ${res.status}`) }
-                return res.json();
-            })
-            .then(json => {
-                setName(json.name)
-                console.log(json)
-            });
-    };
+        setSubmitText(nameText);
+    }
 
     return (
         <div>
-            <h1>{name}</h1>
-            <form onSubmit={tempRegister}>
-                <input type="text" onChange={textChange} value={nameText} />
+            <form onSubmit={handleSubmit}>
+                <input type="text" name="name-text" onChange={textChange} value={nameText} />
                 <button type="submit">name</button>
             </form>
+            <button onClick={() => {
+
+            }}>ClearState</button>
         </div>
     )
 }

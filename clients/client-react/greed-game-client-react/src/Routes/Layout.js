@@ -1,4 +1,4 @@
-import { Link, Outlet } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 
 export { Layout };
 
@@ -7,7 +7,7 @@ function Layout() {
         <div className="layout">
             <div className="panel-hori">
             </div>
-            <Outlet>wasisthen</Outlet>
+            <Outlet />
         </div>
     )
 }
