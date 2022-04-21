@@ -1,9 +1,12 @@
 import { useEffect, useState, useContext } from "react";
+import { BrowserRouter } from "react-router-dom";
+import { MatchContext } from "../context/MatchContext";
 import { UserContext } from "../context/UserContext";
 
 export default function useTempRegister(submitText) {
     const [loading, setLoading] = useState(false);
     const { user, setUser } = useContext(UserContext);
+    const { setMatchDetails } = useContext(MatchContext);
 
 
     useEffect(() => {
@@ -12,6 +15,7 @@ export default function useTempRegister(submitText) {
         const request = new Request('http://localhost:5001/auth',
             {
                 method: 'POST',
+                credentials: 'include',
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json'
@@ -19,6 +23,8 @@ export default function useTempRegister(submitText) {
                 body: JSON.stringify({ name: submitText }),
             }
         );
+
+        
 
         fetch(request)
             .then(res => {
@@ -29,7 +35,7 @@ export default function useTempRegister(submitText) {
                 setUser(json)
                 setLoading(false);
             });
-    }, [submitText, setUser])
+    }, [submitText, setUser, setMatchDetails])
 
     return [loading, user];
 

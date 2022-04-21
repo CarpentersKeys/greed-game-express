@@ -4,7 +4,7 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import EventEmmiter from 'events';
 
-import gameRouter from './routers/gameRouter.js';
+import  gameRouter  from './routers/gameRouter.js';
 import authRouter from './routers/auth-router.js';
 import onError from './events-handling/onError.js';
 
@@ -16,6 +16,7 @@ onError();
 app.use(express.json());
 app.use(cors({
     origin: 'http://localhost:3001',
+    credentials: true,
 }));
 app.use(cookieParser());
 

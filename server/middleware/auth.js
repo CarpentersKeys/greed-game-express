@@ -6,6 +6,7 @@ export default function auth(req, res, next) {
         req.name = decoded.name;
         next();
     } catch {
+        console.log('req.body')
         res.status(500).send('bad auth!');
     }
 };

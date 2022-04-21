@@ -7,12 +7,14 @@ export default function timeoutListening(eventEmitter, eventString, eventCallbac
         };
 
         function timeoutCb(eventString, eventCb) {
-            reject(timeoutCallback('timed out'));
-            eventEmitter.removeListener(eventString, eventCb)
-        }
+            const err = new Error()
+            err.code = 'ERR_SCRIPT_EXECUTION_TIMEOUT';
+    reject(timeoutCallback(err));
+    eventEmitter.removeListener(eventString, eventCb)
+}
 
-        const timer = setTimeout(timeoutCb, time, eventString, eventCb);
-        eventEmitter.once(eventString, eventCb);
+const timer = setTimeout(timeoutCb, time, eventString, eventCb);
+eventEmitter.once(eventString, eventCb);
     })
 
 };

@@ -5,23 +5,27 @@ import Home from './Routes/Home';
 import { Layout } from './Routes/Layout';
 import Match from './Routes/Match';
 import { UserContext } from './context/UserContext';
+import { MatchContext } from './context/MatchContext';
 
 function App() {
   const [user, setUser] = useState(null);
+  const [matchDetails, setMatchDetails] = useState(null);
 
 
   return (
     <div className="App">
-      <Routes>
+      <MatchContext.Provider value={{ matchDetails, setMatchDetails }}>
         <UserContext.Provider value={{ user, setUser }}>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Home />} />
-            <Route path="/game" element={<Game />} >
-              <Route path="/game/match" element={<Match />} />
+          <Routes>
+            <Route path="/" element={<Layout />}>
+              <Route index element={<Home />} />
+              <Route path="/game" element={<Game />} >
+                <Route path="/game/match" element={<Match />} />
+              </Route>
             </Route>
-          </Route>
+          </Routes>
         </UserContext.Provider>
-      </Routes>
+      </MatchContext.Provider>
     </div >
   );
 }
